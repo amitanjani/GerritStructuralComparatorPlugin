@@ -1030,7 +1030,7 @@ table.gridtable td {
 			color: #fff; 
 			cursor:pointer;
 }
-#commentPanelButtons .panelButton{
+.commentPanelButtons .panelButton{
                 margin: 0;
 	        margin-right: 2em;
 	        font-size: 7pt;
@@ -1039,4 +1039,16 @@ table.gridtable td {
 	        text-transform: none;
 	        font-weight: normal;
 	        border: 1px outset #ccc;
+}
+.draftmessage {
+			font-weight: bold;
+			font-family: sans-serif;
+			padding-bottom: 4px;
+}
+.paragraph {
+	        padding-bottom: 10px;
+	        font-family: sans-serif;
+}
+.commentPanelButtons {
+	  		padding-bottom: 5px;
 }

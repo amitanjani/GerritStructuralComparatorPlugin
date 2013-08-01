@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.utils;
+package com.imaginea.gerritplugin.utils;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

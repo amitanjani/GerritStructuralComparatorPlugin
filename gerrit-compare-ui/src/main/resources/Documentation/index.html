@@ -18,6 +18,7 @@
 <script type="text/javascript" src="js/jquery-ui-1.9.2.custom.js"></script>
 <script type="text/javascript" src="js/JSONParser.js"></script>
 <script type="text/javascript" src="js/pagination.js"></script>
+<script type="text/javascript" src="js/commentPanel.js"></script>
 <script>
 			var _init = $.ui.dialog.prototype._init;
 			$.ui.dialog.prototype._init = function() {
@@ -27,11 +28,6 @@
 			   //set some variables for use later
 			   var dialog_element = this;
 			   var dialog_id = this.uiDialogTitlebar.next().attr('id');
-			    
-			   //append our minimize icon
-			  /*  this.uiDialogTitlebar.append('<a href="#" id="' + dialog_id + 
-			   '-minbutton" class="ui-dialog-titlebar-minimize ui-corner-all">'+
-			   '<span class="ui-icon ui-icon-minusthick"></span></a>'); */
 			    
 			   //append our minimized state
 			   $('#dialog_window_minimized_container').append(

@@ -1,4 +1,4 @@
-$(document).ready(function() {
+function createPagination(){
 	var rows=$('#gerritCommitStatus').find('tbody tr').length;
 	var no_rec_per_page=15;
 	var no_pages= Math.ceil(rows/no_rec_per_page);
@@ -29,4 +29,4 @@ $(document).ready(function() {
 		$(tr[i]).show();
 	}
 	});
-});
+}

@@ -92,63 +92,6 @@ diffview = {
 			return e;
 		}
 		
-		function createTextArea(){
-			 var textarea = document.createElement('textarea');
-			 textarea.setAttribute('rows', '4');
-			 textarea.setAttribute('cols', '40');
-			 textarea.setAttribute('style','display:none');
-			 return textarea;
-		}
-		
-		function createDraftTitle(){
-			var draft = document.createElement('div');
-		    draft.setAttribute('style', 'font-weight: bold;font-family: sans-serif;padding-bottom: 4px;');
-		    draft.innerHTML = "(Draft)";
-		    return draft;
-		}
-		
-		function createParagraph(text){
-			var paragraph = document.createElement('p');
-			paragraph.setAttribute('style', 'padding-bottom: 10px;font-family: sans-serif;');
-			paragraph.innerHTML = text;
-			return paragraph;
-		}
-		
-		function createButton(){
-			var divTag = document.createElement("div");
-			divTag.id = "commentPanelButtons";
-			divTag.setAttribute('style', 'padding-bottom: 5px;');
-			
-			var saveButton = document.createElement("Button");
-			saveButton.innerHTML = "Save";
-			saveButton.setAttribute('class', 'panelButton');
-			saveButton.setAttribute('onclick','saveReviewerComment(event)');
-			saveButton.setAttribute('style', 'display: none;');
-			divTag.appendChild(saveButton);
-			    
-			var editButton = document.createElement("Button");
-			editButton.innerHTML = "Edit";
-			editButton.setAttribute('class', 'panelButton');
-			editButton.setAttribute('onclick','editReviwerComment(event)');
-			divTag.appendChild(editButton);
-			    
-			var cancelButton = document.createElement("Button");
-			cancelButton.innerHTML = "Cancel";
-			cancelButton.setAttribute('class', 'panelButton'); 
-			cancelButton.setAttribute('style', 'display: none;');
-			cancelButton.setAttribute('onclick','cancel(event)');
-			divTag.appendChild(cancelButton);
-			   
-			var discardButton = document.createElement("Button");
-			discardButton.innerHTML = "Discard";
-			discardButton.setAttribute('class', 'panelButton'); 
-			discardButton.setAttribute('style', 'display: none;');
-			discardButton.setAttribute('onclick','deleteTableRow(event)');
-			divTag.appendChild(discardButton);
-			    
-			return divTag;	    
-		}
-	
 		var tdata = document.createElement("thead");
 		var node = document.createElement("tr");
 		tdata.appendChild(node);
@@ -271,10 +214,11 @@ diffview = {
 							node.appendChild(document.createElement("th"));
 							if( queue[0].side == 0 ){
 								var e = document.createElement("td");
-							    e.appendChild(createDraftTitle());
-							    e.appendChild(createParagraph(queue[0].message));
-							    e.appendChild(createTextArea());
-							    e.appendChild(createButton());
+								createDraftTitle().appendTo(e);
+								createParagraph(queue[0].message).appendTo(e);
+								createTextArea().appendTo(e);
+								createButton().appendTo(e);
+							    
 							    node.appendChild(e);
 							}else{
 								node.appendChild(telt("td", ""));
@@ -283,10 +227,11 @@ diffview = {
 							node.appendChild(document.createElement("th"));
 							if( queue[0].side == 1 ){
 								var e = document.createElement("td");
-							    e.appendChild(createDraftTitle());
-							    e.appendChild(createParagraph(queue[0].message));
-							    e.appendChild(createTextArea());
-							    e.appendChild(createButton());
+								createDraftTitle().appendTo(e);
+								createParagraph(queue[0].message).appendTo(e);
+								createTextArea().appendTo(e);
+								createButton().appendTo(e);
+							    
 							    node.appendChild(e);
 							}else{
 								node.appendChild(telt("td", ""));
