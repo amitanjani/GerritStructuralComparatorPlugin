@@ -6,7 +6,7 @@
   <name>gerrit-compare-plugin</name>
   <packaging>pom</packaging>
   <modules>
-  	<module>gerritStructuralComparator</module>
-  	<module>javaStructuralComparator</module>
+  	<module>gerrit-compare-ui</module>
+  	<module>StructuralComparator</module>
   </modules>
 </project>
