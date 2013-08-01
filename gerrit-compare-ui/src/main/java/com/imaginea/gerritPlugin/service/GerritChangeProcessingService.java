@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.service;
+package com.imaginea.gerritplugin.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +13,9 @@ import com.google.gerrit.server.patch.PatchListNotAvailableException;
 import com.google.gwtorm.server.OrmException;
 import com.google.gwtorm.server.ResultSet;
 import com.google.gwtorm.server.SchemaFactory;
-import com.imaginea.gerritPlugin.model.Change;
-import com.imaginea.gerritPlugin.model.ChangeID;
-import com.imaginea.gerritPlugin.model.PatchSet;
+import com.imaginea.gerritplugin.model.Change;
+import com.imaginea.gerritplugin.model.ChangeID;
+import com.imaginea.gerritplugin.model.PatchSet;
 
 public class GerritChangeProcessingService {
 
@@ -42,12 +42,12 @@ public class GerritChangeProcessingService {
 					idList.setCommitMsg(change.getSubject());
 					changeIdList.add( idList );
 			}
+				reviewDb.close();
 			}
 			
 		} catch (OrmException e) {
 			log.error("OrmException::",e);
 		}
-		reviewDb.close();
 		log.debug("ChangeId List Size::"+changeIdList.size());
 		return changeIdList;
 		
@@ -124,8 +124,8 @@ public class GerritChangeProcessingService {
 	}
 
 
-	private List<com.imaginea.gerritPlugin.model.Patch> buildPatcheList(List<Patch> patches){
-		List<com.imaginea.gerritPlugin.model.Patch> patchList = new ArrayList<com.imaginea.gerritPlugin.model.Patch>();
+	private List<com.imaginea.gerritplugin.model.Patch> buildPatcheList(List<Patch> patches){
+		List<com.imaginea.gerritplugin.model.Patch> patchList = new ArrayList<com.imaginea.gerritplugin.model.Patch>();
 		 
 		for (Patch patch : patches) {
 			if ("/COMMIT_MSG".equals(patch.getFileName()))
@@ -135,7 +135,7 @@ public class GerritChangeProcessingService {
 					+patch.getKey().getParentKey().toString() + ","
 					+ patch.getFileName() + "^0";
 			
-			com.imaginea.gerritPlugin.model.Patch customPatch = new com.imaginea.gerritPlugin.model.Patch( patch, fileURL );
+			com.imaginea.gerritplugin.model.Patch customPatch = new com.imaginea.gerritplugin.model.Patch( patch, fileURL );
 			patchList.add(customPatch);
 		}
 		return patchList;

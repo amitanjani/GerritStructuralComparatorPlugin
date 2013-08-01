@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.service;
+package com.imaginea.gerritplugin.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,14 +55,19 @@ public class PatchDetailService extends HttpServlet{
 	
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String reviewerComment = req.getParameter("message");
-		log.debug("reviewerComment "+reviewerComment);
+		String changeDetail = req.getParameter("changeDetail");
 		int line = Integer.valueOf(req.getParameter("lineNumber"));
-		log.debug("lineNumber "+line);
+		int tmpSide = Integer.valueOf(req.getParameter("side"));
+		
 		String change_id = "0";
 		String patchId = "1";
-		int tmpSide = Integer.valueOf(req.getParameter("side"));
-		log.debug("Side "+tmpSide);
 		final short side;
+
+		log.debug("reviewerComment "+reviewerComment);
+		log.debug("lineNumber "+line);
+		log.debug("changeDetail "+changeDetail);
+		log.debug("Side "+tmpSide);
+		
 		if( tmpSide == 1 ){
 			side = (short) 0;
 		}else if( tmpSide == 3 ){
@@ -72,8 +77,7 @@ public class PatchDetailService extends HttpServlet{
 			log.debug("Invalid side");
 		}
 		
-		String changeDetail = req.getParameter("changeDetail");
-		log.debug("changeDetail "+changeDetail);
+		
 		String[] tmpArray = changeDetail.split(",");
 		if( tmpArray.length == 3 ){
 			patchId = tmpArray[1];
@@ -83,7 +87,12 @@ public class PatchDetailService extends HttpServlet{
 			}
 		}
 		String tmpFileName = tmpArray[2];
-		String fileName = tmpFileName.substring(0, tmpFileName.length()-2 );
+		String fileName = null;
+		
+		if( null != tmpFileName && (tmpFileName.length()-2) > 0){
+			fileName = tmpFileName.substring(0, tmpFileName.length()-2 );
+		}
+		
 		
 		Change.Id change = new Change.Id(Integer.valueOf(change_id));
 		final Patch.Key parentKey;
@@ -109,7 +118,7 @@ public class PatchDetailService extends HttpServlet{
 		 
 		 try {
 			 log.debug("Calling saveDraftFactory");
-			 Set<PatchLineComment> draftMessage = loadDraftMessage( change, idSideB );
+			 Set<PatchLineComment> draftMessage = loadDraftMessage( change, idSideB, fileName );
 			 PatchLineComment comment = null;
 			 log.debug("idSideB::"+idSideB);
 			 log.debug("DraftMessage Size:: "+draftMessage.size());
@@ -251,7 +260,7 @@ public class PatchDetailService extends HttpServlet{
 	          final CurrentUser user = control.getCurrentUser();
 	          final Account.Id me = user instanceof IdentifiedUser ? ((IdentifiedUser) user).getAccountId(): null;
 	      	  log.debug(" comment.getAuthor()::"+comment.getAuthor() );
-	          if (!me.equals(comment.getAuthor())) {
+	          if ( null != me && !me.equals(comment.getAuthor())) {
 	            throw new Failure(new NoSuchEntityException());
 	          }
 	          if (comment.getStatus() != PatchLineComment.Status.DRAFT) {
@@ -267,7 +276,7 @@ public class PatchDetailService extends HttpServlet{
 	 }
 	 
 	// Arguement require: changeId and pastchSetId
-	private Set<PatchLineComment> loadDraftMessage( Change.Id changeId, PatchSet.Id patchSetId ) throws OrmException {
+	private Set<PatchLineComment> loadDraftMessage( Change.Id changeId, PatchSet.Id patchSetId, String fileName ) throws OrmException {
 		log.debug("loadPatchSets() Method Arguement "+changeId); 
 		try {
 			db = dbFactory.open();
@@ -277,7 +286,6 @@ public class PatchDetailService extends HttpServlet{
 	    ResultSet<PatchSet> source = db.patchSets().byChange(changeId);
 	    List<PatchSet> patches = new ArrayList<PatchSet>();
 	    Set<PatchLineComment> patchesDraftSet = new HashSet<PatchLineComment>();
-	   // HashMap< PatchSet.Id , PatchLineComment> patchDraftMap = new HashMap<PatchSet.Id, PatchLineComment>();
 	    final CurrentUser user = control.getCurrentUser();
 	    final Account.Id me = user instanceof IdentifiedUser ? ((IdentifiedUser) user).getAccountId():null;
 	    for (PatchSet ps : source) {
@@ -296,10 +304,10 @@ public class PatchDetailService extends HttpServlet{
 	  		        		log.debug("Side "+comment.getSide());
 	  		        		log.debug("Line Number "+comment.getLine());
 	  		        		log.debug("Author "+comment.getAuthor());
-	  		        		if( me.equals(comment.getAuthor())){
+	  		        		log.debug("FileName "+comment.getKey().getParentKey().getFileName());
+	  		        		if( me.equals(comment.getAuthor()) && null != fileName && fileName.equals( comment.getKey().getParentKey().getFileName() )){
 	  		        			patchesDraftSet.add(comment);
 	  		        		}
-	  		        		//patchDraftMap.put(psId , comment);
 	  	        	}
 	  	        }
 	  	      }

@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.utils;
+package com.imaginea.gerritplugin.utils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -83,11 +83,21 @@ public class FileDataRetrivalService {
 			log.error(e);
 		} finally {
 			try {
-				zis.close();
-				dis.close();
-				inputStream.close();
-				byteArrayOutputStream.close();
-				urlConnection.disconnect();
+				if( zis != null){
+					zis.close();
+				}
+				if( dis != null){
+					dis.close();
+				}
+				if( inputStream != null){
+					inputStream.close();
+				}
+				if( byteArrayOutputStream != null){
+					byteArrayOutputStream.close();
+				}
+				if( urlConnection != null ){
+					urlConnection.disconnect();
+				}
 			} catch (IOException e) {
 				log.error(e);
 			}

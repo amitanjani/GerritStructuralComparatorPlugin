@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.model;
+package com.imaginea.gerritplugin.model;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

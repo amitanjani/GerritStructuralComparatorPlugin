@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.utils;
+package com.imaginea.gerritplugin.utils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -18,7 +18,7 @@ import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gwtorm.server.OrmException;
 import com.google.gwtorm.server.ResultSet;
 import com.google.gwtorm.server.SchemaFactory;
-import com.imaginea.javaStructuralComparator.domain.DraftMessage;
+import com.imaginea.comparator.domain.DraftMessage;
 
 public class DraftUtil {
 	
@@ -29,9 +29,15 @@ public class DraftUtil {
 	public static List<DraftMessage> loadDraftMessage( SchemaFactory<ReviewDb> dbFactory, ChangeControl.Factory changeControlFactory, String url ) throws OrmException {
 		int id = 0;
 		int change_id = 0;
+		String fileName = null;
 		String[] changeDetails =url.split(",");
 		if( changeDetails.length == 3 ){
 			id = Integer.valueOf( changeDetails[1] );
+			
+			if( null != changeDetails[2] && (changeDetails[2].length() - 2) > 0){
+				fileName = changeDetails[2].substring(0, changeDetails[2].length()-2);
+			}
+			
 			String tmpUrl = changeDetails[0];
 			String[] tmpChangeId = tmpUrl.split("/");
 			if( tmpChangeId.length == 5 ){
@@ -80,7 +86,8 @@ public class DraftUtil {
 	  		        		log.debug("Line Number "+comment.getLine());
 	  		        		log.debug("Author "+comment.getAuthor());
 	  		        		log.debug("Written On::"+comment.getWrittenOn());
-	  		        		if( me.equals(comment.getAuthor())){
+	  		        		log.debug("File Name:: "+comment.getKey().getParentKey().getFileName());
+	  		        		if( me.equals(comment.getAuthor()) && null != fileName && fileName.equals(comment.getKey().getParentKey().getFileName())){
 	  		        			DraftMessage message = new DraftMessage();
 	  		        			message.setLine(comment.getLine());
 	  		        			message.setMessage(comment.getMessage());
@@ -88,7 +95,6 @@ public class DraftUtil {
 	  		        			message.setWrittenOn(comment.getWrittenOn());
 	  		        			patchesDraftSet.add(message);
 	  		        		}
-	  		        		//patchDraftMap.put(psId , comment);
 	  	        	}
 	  	        }
 	  	      }

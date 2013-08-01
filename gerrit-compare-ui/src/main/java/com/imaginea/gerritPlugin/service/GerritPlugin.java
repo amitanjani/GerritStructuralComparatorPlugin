@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.service;
+package com.imaginea.gerritplugin.service;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,13 +23,13 @@ import com.google.gerrit.server.project.ChangeControl;
 import com.google.gson.Gson;
 import com.google.gwtorm.server.SchemaFactory;
 import com.google.inject.Inject;
-import com.imaginea.gerritPlugin.model.ChangeDetails;
-import com.imaginea.gerritPlugin.model.ChangeID;
-import com.imaginea.gerritPlugin.utils.DraftUtil;
-import com.imaginea.gerritPlugin.utils.FileDataRetrivalService;
-import com.imaginea.javaStructuralComparator.domain.ComparisonResult;
-import com.imaginea.javaStructuralComparator.domain.DraftMessage;
-import com.imaginea.javaStructuralComparator.repo.ComparatorImpl;
+import com.imaginea.comparator.domain.ComparisonResult;
+import com.imaginea.comparator.domain.DraftMessage;
+import com.imaginea.comparator.repo.ComparatorImpl;
+import com.imaginea.gerritplugin.utils.DraftUtil;
+import com.imaginea.gerritplugin.utils.FileDataRetrivalService;
+import com.imaginea.gerritplugin.model.ChangeDetails;
+import com.imaginea.gerritplugin.model.ChangeID;
 
 
 @Export("/gerritPlugin")
@@ -120,7 +120,7 @@ public class GerritPlugin extends HttpServlet {
 	
 	private URL getFileLocation( String fileName ){
 		try {
-			Class cls = Class.forName("com.imaginea.gerritPlugin.service.GerritPlugin");
+			Class cls = Class.forName("com.imaginea.gerritplugin.service.GerritPlugin");
 			ClassLoader cLoader = cls.getClassLoader();
 			URL url = cLoader.getResource( fileName );
 			return url;

@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.model;
+package com.imaginea.gerritplugin.model;
 
 public class Patch {
 	private String patchFileName;

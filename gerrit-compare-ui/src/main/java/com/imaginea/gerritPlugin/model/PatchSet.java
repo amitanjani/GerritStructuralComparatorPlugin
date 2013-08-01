@@ -1,4 +1,4 @@
-package com.imaginea.gerritPlugin.model;
+package com.imaginea.gerritplugin.model;
 
 import java.util.ArrayList;
 import java.util.List;
