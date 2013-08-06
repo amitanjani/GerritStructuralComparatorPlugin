@@ -1,86 +1,161 @@
-function Container(){
-	
-	if ( Container.prototype.singletonInstance ) {
-	      return Container.prototype.singletonInstance;
-	    }
-	
-	Container.prototype.singletonInstance = this;
-
-var lastClickedUrl = "";
-
-var changes = 0;
-
-var counter = 0;
-
-var baseChangeArray = new Array();
-
-var patchChangeArray = new Array();
-
-var multiArray = "";
-
-function gotoNextChange(){
-	var marker = '';
-	var w;
-	if (counter < changes) {
-		counter++;
-		if (counter == changes) {
-			counter = 0;
-		}
-		marker = '#Marker' + counter;
-	}
-	var offset = $(marker).offset();
-	var topoffset = offset.top;
-	var className = document.getElementById('diffoutput').className;
-	if( className == "vScroll" ){
-		w = $(".vScroll");
-		w.scrollTop( topoffset - w.height() / 2);
-	}else{
-		w = $(".vScrollFullScreen");
-		w.scrollTop( topoffset - w.height() / 2);
-	}
-}
-
-function gotoPreviousChange(){
-	var marker = '';
-	var w;
-	if (counter >= 0) {
-		counter--;
-		if (counter == -1) {
+var navigateModule = (function () {
+	var changes = 0;
+	var counter = -1;
+	return {
+		incrementCounter: function () {
+			return counter++;
+		},
+		
+		decrementCounter: function () {
+			return counter--;
+		},
+		
+		getCounter: function () {
+			return counter;
+		},
+		
+		resetCounter: function () {
+			counter = -1;
+		},
+		
+		updateCounter: function () {
 			counter = changes - 1;
+			return counter;
+		},
+		
+		incrementChanges: function () {
+			changes++;
+		},
+		
+		resetChanges: function () {
+			changes = 0;
+		},
+		
+		getTotalChange: function () {
+			return changes;
+		} 
+	}; 
+})();
+
+var urlModule = (function () {
+	var lastClickedUrl = "";
+	return {
+		setLastClickedUrl: function (url) {
+			lastClickedUrl = url;
+		},
+		
+		getLastClickedUrl: function () {
+			return lastClickedUrl;
 		}
-		marker = '#Marker' + counter;
-	}
-	var offset = $(marker).offset();
-	var topoffset = offset.top;
-	var className = document.getElementById('diffoutput').className;
-	if( className == "vScroll" ){
-		w = $(".vScroll");
-		w.scrollTop( topoffset - w.height() / 2);
-	}else{
-		w = $(".vScrollFullScreen");
-		w.scrollTop( topoffset - w.height() / 2);
-	}
-}
+	};
+})();
+
+var changeStructureTree = (function () {
+	var baseChangeArray = [];
+	var patchChangeArray = [];
+	return {
+		setBaseChangeArray: function (changeArr) {
+			baseChangeArray = changeArr;
+		},
+		
+		setPatchChangeArray: function (changeArr) {
+			patchChangeArray = changeArr;
+		},
+		
+		getBaseChangeArray: function () {
+			return baseChangeArray;
+		},
+		
+		getPatchChangeArray: function () {
+			return patchChangeArray;
+		}
+	};
+})();
+
+var patchset = (function () {
+	var multiArray;
+	return {
+		setMultiArray: function (patchSet) {
+			multiArray = patchSet;
+		},
+		
+		getMultiArray: function () {
+			return multiArray;
+		}
+	};
+})();
+
+
+(function ($) {
+	$.gotoNextChange = function () {
+		var marker = '';
+		var w;
+		var counter = navigateModule.getCounter();
+		var changes = navigateModule.getTotalChange();
+		if (counter < changes) {
+			counter = navigateModule.incrementCounter();
+			if (counter === changes) {
+				navigateModule.resetCounter();
+			}
+			marker = '#Marker' + counter;
+		}
+		var offset = $(marker).offset();
+		var topoffset = offset.top;
+		var className =  $('#diffoutput').attr('class');
+		if (className === "vScroll") {
+			w = $(".vScroll");
+			w.scrollTop(topoffset - w.height() / 2);
+		} else {
+			w = $(".vScrollFullScreen");
+			w.scrollTop(topoffset - w.height() / 2);
+		}
+	};
+	
+	$.gotoPreviousChange = function () {
+		var marker = '';
+		var w;
+		var counter = navigateModule.getCounter();
+		var changes = navigateModule.getTotalChange();
+		if (counter >= 0) {
+			navigateModule.decrementCounter();
+			if (counter === -1) {
+				counter = navigateModule.updateCounter();
+			}
+			marker = '#Marker' + counter;
+		}
+		var offset = $(marker).offset();
+		var topoffset = offset.top;
+		var className = $('#diffoutput').attr('class');
+		if (className === "vScroll") {
+			w = $(".vScroll");
+			w.scrollTop(topoffset - w.height() / 2);
+		} else {
+			w = $(".vScrollFullScreen");
+			w.scrollTop(topoffset - w.height() / 2);
+		}
+	};
+})(jQuery);
 
 // This Method compares selected Patches with BaseVersion
 function PatchComparison(patchSetUrl) {
 	var baseVersion = "";
 	var patchVersion = "";
+	var lastClickedUrl = urlModule.getLastClickedUrl();
 
 	$("#containerId").hide();
 	$("#wait").show();
 	
-	if( patchSetUrl === '' ){
-		if( lastClickedUrl !== null ){
+	if (patchSetUrl === '') {
+		if (lastClickedUrl !== null) {
 			var urlPath = lastClickedUrl.split(",");
-			if( urlPath.length == 3 ){
+			if (urlPath.length === 3) {
 				patchSetUrl = urlPath[0] + ",1," + urlPath[2];
 			}
-			patchSetUrl = patchSetUrl.substring(0,patchSetUrl.length-1 ).concat('1');
+			patchSetUrl = patchSetUrl.substring(0, patchSetUrl.length - 1).concat('1');
 		}
 	}
 	
-	if (patchSetUrl == lastClickedUrl) {
+	if (patchSetUrl === lastClickedUrl) {
 		baseVersion = "No Difference Found";
 		patchVersion = "";
 		$('#ModificationDetails').treetable('destroy');
@@ -103,7 +178,7 @@ function PatchComparison(patchSetUrl) {
 		$("#containerId").show();
 		$("#wait").hide();
 	}
-	lastClickedUrl = patchSetUrl;
+	urlModule.setLastClickedUrl(patchSetUrl);
 }
 
 
@@ -112,16 +187,17 @@ function PatchComparison(patchSetUrl) {
 function fetchDatafromURL(url, patchNo) {
 	var baseVersion = "";
 	var patchVersion = "";
+	var multiArray = patchset.getMultiArray();
 	
 	$("#containerId").hide();
 	$("#wait").show();
 	
-	lastClickedUrl = url;
+	urlModule.setLastClickedUrl(url);
 
-	$.get("../gerritPlugin", { url:url  }).done(function( comparatorResult ) {
+	$.get("../gerritPlugin", { url: url  }).done(function (comparatorResult) {
 		var patchSetLabel = "<a onclick=\"PatchComparison('')\">Base </a>";
 		var baseSetLabel = "<a onclick=\"PatchComparison('')\">Base </a>";
-		for ( var i = 0; i < multiArray.length; i++) {
+		for (var i = 0; i < multiArray.length; i++) {
 			patchSetLabel += " ";
 			patchSetLabel += multiArray[i][patchNo];
 		}
@@ -129,7 +205,7 @@ function fetchDatafromURL(url, patchNo) {
 		$('#patchSetLabel1').html(patchSetLabel);
 		$('#patchSetLabel2').html(patchSetLabel);
 
-		if ( comparatorResult.indexOf("JavaCode") === 0 ) {
+		if (comparatorResult.indexOf("JavaCode") === 0) {
 			$('#ModificationDetails').treetable('destroy');
 			$('#ModificationDetails').html('');
 			baseVersion = "";
@@ -154,72 +230,72 @@ function parseJSONResponse(comparatorResult) {
 	var patchVersion = "";
 	var key = "";
 	var parameter = "";
-	counter = -1;
-	changes = 0;
+	var baseChangeArray = [];
+	var patchChangeArray = [];
+	
+	navigateModule.resetCounter();
+	navigateModule.resetChanges();
 	
 	changedFileTreeStructure = "<table id=\"ModificationDetails\" cellpadding=\"0\" cellspacing=\"0\"><tbody><tr data-tt-id='1'><td><span class='compilationUnit'>Compilation Unit </span></td></tr> <tr data-tt-id='1-1' data-tt-parent-id='1'><td><span class='javaIcon'>";
 	draftMsgArray = parsedJSON.draftMessage;
 	
 	// package name changes
-	if (parsedJSON.pkg.diff == -1 || parsedJSON.pkg.diff == 10 || parsedJSON.pkg.diff == 1) {
+	if (parsedJSON.pkg.diff === -1 || parsedJSON.pkg.diff === 10 || parsedJSON.pkg.diff === 1) {
 		baseVersion += parsedJSON.pkg.lines[0].value;
 		patchVersion += parsedJSON.pkg.lines[1].value;
 	}
 
 	// changes in Import statement
-	for ( var i = 0; i < parsedJSON.imports.length; i++) {
-		if( parsedJSON.imports[i].diff !== 0 ){
+	for (var i = 0; i < parsedJSON.imports.length; i++) {
+		if (parsedJSON.imports[i].diff !== 0) {
 			baseVersion += '\n';
 			patchVersion += '\n';
 		}
 		
-		if (parsedJSON.imports[i].diff == 1) {
+		if (parsedJSON.imports[i].diff === 1) {
 			baseVersion += parsedJSON.imports[i].lines[0].value;
-		} else if (parsedJSON.imports[i].diff == -1) {
+		} else if (parsedJSON.imports[i].diff === -1) {
 			patchVersion += parsedJSON.imports[i].lines[1].value;
-		} else if (parsedJSON.imports[i].diff == 10) {
+		} else if (parsedJSON.imports[i].diff === 10) {
 			baseVersion += parsedJSON.imports[i].lines[0].value;
 			patchVersion += parsedJSON.imports[i].lines[1].value;
 		}
 	}
 
 	// Changes in program body
-	for ( var i = 0; i < parsedJSON.types.length; i++) {
-		if( parsedJSON.types[i].diff !== 0 ){
+	for (i = 0; i < parsedJSON.types.length; i++) {
+		if (parsedJSON.types[i].diff !== 0) {
 			baseVersion += '\n';
 			patchVersion += '\n';
 		}
 		
-		if (parsedJSON.types[i].diff == 1) {
+		if (parsedJSON.types[i].diff === 1) {
 			baseVersion += parsedJSON.types[i].declarations[0].completeNodeValue;
-			changedFileTreeStructure += parsedJSON.types[i].declarations[0].name
-					+ "</span></td></tr>";
+			changedFileTreeStructure += parsedJSON.types[i].declarations[0].name + "</span></td></tr>";
 			
-		} else if (parsedJSON.types[i].diff == -1) {
+		} else if (parsedJSON.types[i].diff === -1) {
 			patchVersion += parsedJSON.types[i].declarations[1].completeNodeValue;
-			changedFileTreeStructure += parsedJSON.types[i].declarations[1].name
-					+ "</span></td></tr>";
+			changedFileTreeStructure += parsedJSON.types[i].declarations[1].name + "</span></td></tr>";
 			
-		} else if (parsedJSON.types[i].diff == 10) {
-			changedFileTreeStructure += parsedJSON.types[i].declarations[0].name
-					+ "</span></td></tr>";
+		} else if (parsedJSON.types[i].diff === 10) {
+			changedFileTreeStructure += parsedJSON.types[i].declarations[0].name + "</span></td></tr>";
 
-			for ( var k = 0; k < parsedJSON.types[i].commonChilds.length; k++) {
-				if( parsedJSON.types[i].commonChilds[k].diff !== 0 ){
+			for (var k = 0; k < parsedJSON.types[i].commonChilds.length; k++) {
+				if (parsedJSON.types[i].commonChilds[k].diff !== 0) {
 					baseVersion += '\n'; 
 					patchVersion += '\n';
 				}
 				
-				if (parsedJSON.types[i].commonChilds[k].diff == 10) {
+				if (parsedJSON.types[i].commonChilds[k].diff === 10) {
 					key = parsedJSON.types[i].commonChilds[k].declarations[0].name;
 					changedFileTreeStructure += "<tr data-tt-id='1-1-" + (i + 1) + "' data-tt-parent-id='1-1'><td><span class=\"fileModified\"><a onclick=\"diffSelectedChange(this)\" >" + parsedJSON.types[i].commonChilds[k].declarations[0].name;
-					if( parsedJSON.types[i].commonChilds[k].declarations[0].hasOwnProperty('parameters') ){
+					if (parsedJSON.types[i].commonChilds[k].declarations[0].hasOwnProperty('parameters')) {
 						parameter =  parsedJSON.types[i].commonChilds[k].declarations[0].parameters;
 						parameter  = parameter.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 						key += '( ' + parameter + ')';
 						changedFileTreeStructure +=  '( ' + parameter + ')' + "</a></span></td></tr>";
 						
-					}else{
+					} else {
 						changedFileTreeStructure += "</a></span></td></tr>";
 					}
 					//Selecting Modified method start
@@ -229,15 +305,15 @@ function parseJSONResponse(comparatorResult) {
 			        
 			        baseChangeArray[key] = parsedJSON.types[i].commonChilds[k].declarations[0].completeNodeValue;
 			        patchChangeArray[key] = parsedJSON.types[i].commonChilds[k].declarations[1].completeNodeValue;
-				} else if (parsedJSON.types[i].commonChilds[k].diff == -1) {
+				} else if (parsedJSON.types[i].commonChilds[k].diff === -1) {
 					key = parsedJSON.types[i].commonChilds[k].declarations[1].name;
 					changedFileTreeStructure += "<tr data-tt-id='1-1-" + (i + 1) + "' data-tt-parent-id='1-1'><td><span class=\"fileNew\"><a onclick=\"diffSelectedChange(this)\" >" + parsedJSON.types[i].commonChilds[k].declarations[1].name;
-					if( parsedJSON.types[i].commonChilds[k].declarations[1].hasOwnProperty('parameters') ){
+					if (parsedJSON.types[i].commonChilds[k].declarations[1].hasOwnProperty('parameters')) {
 						parameter =  parsedJSON.types[i].commonChilds[k].declarations[1].parameters;
 						parameter  = parameter.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 						key += '( ' + parameter + ')';
 						changedFileTreeStructure += '( ' + parameter + ')' + "</a></span></td></tr>";
-					}else{
+					} else {
 						changedFileTreeStructure += "</a></span></td></tr>";
 					}
 					
@@ -245,15 +321,15 @@ function parseJSONResponse(comparatorResult) {
 			        
 			        baseChangeArray[key] = "";
 			        patchChangeArray[key] = parsedJSON.types[i].commonChilds[k].declarations[1].completeNodeValue;
-				} else if (parsedJSON.types[i].commonChilds[k].diff == 1) {
+				} else if (parsedJSON.types[i].commonChilds[k].diff === 1) {
 					key = parsedJSON.types[i].commonChilds[k].declarations[0].name;
 					changedFileTreeStructure += "<tr data-tt-id='1-1-" + (i + 1) + "' data-tt-parent-id='1-1'><td><span class=\"fileDelete\"><a onclick=\"diffSelectedChange(this)\" >" + parsedJSON.types[i].commonChilds[k].declarations[0].name;
-					if( parsedJSON.types[i].commonChilds[k].declarations[0].hasOwnProperty('parameters') ){
+					if (parsedJSON.types[i].commonChilds[k].declarations[0].hasOwnProperty('parameters')) {
 						parameter =  parsedJSON.types[i].commonChilds[k].declarations[0].parameters;
 						parameter  = parameter.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-						key  += '(' + parameter +')';
-						changedFileTreeStructure += '(' + parameter +')' + "</a></span></td></tr>";
-					}else{
+						key  += '(' + parameter + ')';
+						changedFileTreeStructure += '(' + parameter + ')' + "</a></span></td></tr>";
+					} else {
 						changedFileTreeStructure += "</a></span></td></tr>";
 					}
 					
@@ -264,6 +340,9 @@ function parseJSONResponse(comparatorResult) {
 			}
 		}
 	}
+	
+	changeStructureTree.setBaseChangeArray(baseChangeArray);
+	changeStructureTree.setPatchChangeArray(patchChangeArray);
 	
 	changedFileTreeStructure += "</tbody></table>";
 	$('#ModificationDetails').html(changedFileTreeStructure);
@@ -283,6 +362,8 @@ function parseJSONResponse(comparatorResult) {
 
 function diffSelectedChange( anchor ){
 	var key = anchor.innerHTML;
+	var baseChangeArray = changeStructureTree.getBaseChangeArray();
+	var patchChangeArray = changeStructureTree.getPatchChangeArray();
 	diffUsingJS(baseChangeArray[key], patchChangeArray[key], null );
 }
 
@@ -311,7 +392,7 @@ function diffUsingJS(baseVersion, patchVersion, draftMsgArray) {
 	for ( var i = 0; i < opcodes.length; i++) {
 		code = opcodes[i];
 		if (code[0] != "equal") {
-			changes++;
+			navigateModule.incrementChanges();
 		}
 	}
 }
@@ -320,6 +401,8 @@ function diffUsingJS(baseVersion, patchVersion, draftMsgArray) {
 function getChangeIdDetails( key ) {
 	var parsedChangeJSON;
 	var totalPatchSet;
+	var multiArray;
+	
 	key = key.trim();
 	$("#containerId").hide();
 	$("#wait").show();
@@ -348,6 +431,7 @@ function getChangeIdDetails( key ) {
 						+ "</a>";
 
 			}
+			patchset.setMultiArray(multiArray);
 			var id = "patch" + (i + 1);
 			tbody += "</tbody>";
 			var table = "<table id=\"patch" + (i + 1)
@@ -383,6 +467,7 @@ function saveReviewerComment(e){
 	var tableColumn = e.target.parentNode.parentNode;
 	var element = tableColumn.getElementsByTagName('textarea');
 	var draftMessage = element[0].value;
+	var lastClickedUrl = urlModule.getLastClickedUrl();
 	
 	if( draftMessage != ''){
 		element[0].style.display = "none";
@@ -409,6 +494,8 @@ function deleteTableRow(e){
 	var tableColumn = e.target.parentNode.parentNode;
 	var element = tableColumn.getElementsByTagName('textarea');
 	var draftMessage = element[0].value;
+	var lastClickedUrl = urlModule.getLastClickedUrl();
+	
 	document.getElementById("diffOutTable").deleteRow(rowIndex);
 	if( draftMessage != ''){
 		$.get("../patchDetailService", { lineNumber:rowIndex, side:cellIndex, message:draftMessage, changeDetail:lastClickedUrl, flag:'discard' }).done(function( result ) {
@@ -417,86 +504,12 @@ function deleteTableRow(e){
 	}
 }
 
-this.changeIdDetails = function( key ){
-	return getChangeIdDetails( key );
-}
-
-this.navigationTree = function( anchor ){
-	return diffSelectedChange( anchor );
-}
-
-this.loadData  = function( url, patchNo ){
-	return fetchDatafromURL(url, patchNo);
-}
-
-this.fileCompare = function( patchSetUrl ){
-	return PatchComparison(patchSetUrl);
-}
-
-this.next  = function(){
-	return gotoNextChange();
-}
-
-this.previous  = function(){
-	return gotoPreviousChange();
-}
-
-this.save = function(e){
-	return saveReviewerComment(e);
-}
-
-this.deleteDraft = function(e){
-	return deleteTableRow(e);
-}
-
-}
-
-
-function getChangeIdDetails( key ){
-	var x = new Container();
-	x.changeIdDetails( key );
-}
-
-function diffSelectedChange( anchor ){
-	var x = new Container();
-	x.navigationTree( anchor );
-}
-
-function fetchDatafromURL(url, patchNo){
-	var x = new Container();
-	x.loadData( url, patchNo );
-}
-
-function PatchComparison(patchSetUrl){
-	var x = new Container();
-	x.fileCompare( patchSetUrl );
-}
-
-function gotoNextChange(){
-	var x = new Container();
-	x.next();
-}
-
-function gotoPreviousChange(){
-	var x = new Container();
-	x.previous();
-}
-
-function saveReviewerComment(e){
-	var x = new Container();
-	x.save(e);
-}
-
-function deleteTableRow(e){
-	var x = new Container();
-	x.deleteDraft(e);
-}
 
 function getGerritCommitDetails(){
 	$.get("../gerritPlugin", function(data) {
 		var parsedJSON = JSON.parse( data ).changeIDs;
 		createStatusTable( parsedJSON.reverse() );
-		createPagination();
+		$.createPagination();
 		});
 }
 
@@ -512,28 +525,27 @@ function createStatusTable(commitList){
 
 
 $(document).jkey('f6', function() {
-	gotoNextChange();
+	$.gotoNextChange();
 });
 
 $(document).jkey('f7', function() {
-	gotoPreviousChange();
+	$.gotoPreviousChange();
 });
 
 $(document).ready(function() {
-	
 	$(".hide_Rows").hide();
-	
 	$(".showDetails").click(function() {
     	$(".hide_Rows").toggle();
     	$(".showDetails").toggle();
     });
 	
-	counter = -1;
+	navigateModule.resetCounter();
+	
 	$("#markerNext").click(function() {
-		gotoNextChange();
+		$.gotoNextChange();
 	});
 
 	$("#markerPrev").click(function() {
-		gotoPreviousChange();
+		$.gotoPreviousChange();
 	});
 });

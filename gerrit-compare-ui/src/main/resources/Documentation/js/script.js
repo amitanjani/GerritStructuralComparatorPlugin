@@ -60,14 +60,14 @@
 
 // Patch Object
 // This is kind of patch factory, where you can play around with Patch Ids and assign the final one to the getPatchId Method.
-var patch = function() {
+var patch = function () {
     // Private
     var patchId = '#patch1'; // default patch
     return {
-        getPatchId: function() {
+        getPatchId: function () {
             return patchId;
         },
-        setPatchId: function(newName) {
+        setPatchId: function (newName) {
             patchId = '#' + newName;
         }
     };
@@ -75,20 +75,16 @@ var patch = function() {
 
 // Loading Default Patch...
 
-function init( anchor ) {
+function init(anchor) {
 	var changeID = anchor.innerHTML;
-	getChangeIdDetails( changeID );
+	getChangeIdDetails(changeID);
 	patch.setPatchId('patch1');
 	console.log(patch.getPatchId() + ' is fired from init dropdown');
-	// Added by: Amit.Anjani
-    $(patch.getPatchId()).treetable('destroy');
-    // End
-	comparePatchIds(patch.getPatchId());
-	document.getElementById("changeID").innerHTML = changeID; 
-	document.getElementById("checkCurrentPatch").innerHTML = 'Patch 1';
-	document.getElementById("ShowDetail").style.display="block";
-	document.getElementById("HideDetail").style.display="none";
-	document.getElementById("dialogBox").style.display= "none";
+	$('#changeID').text(changeID);
+	$('#checkCurrentPatch').text('Patch 1');
+	$('#ShowDetail').show();
+	$('#HideDetail').hide();
+	$('#dialogBox').hide();
 	$('#dialog_StatusOpen_window_minimized').show();
 	$('#dialog_StatusOpen_window').hide();
 	$('#headerSection').hide();
@@ -103,7 +99,7 @@ window.load = loadGerritCommit();
 
 // This action selects a patch from the drop down and sends 'this' data-dd-id to patch Object by using setPatchId
 // Also send final data-dd-id to the comparePatchIds as param.
-$('.subMenu a').click(function() {
+$('.subMenu a').click(function () {
     patch.setPatchId($(this).attr('data-dd-id'));
     console.log(patch.getPatchId() + ' is fired from dropdown');
     comparePatchIds(patch.getPatchId());

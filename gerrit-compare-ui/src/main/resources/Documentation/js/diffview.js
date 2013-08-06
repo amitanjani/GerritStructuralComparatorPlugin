@@ -28,6 +28,8 @@ authors and should not be interpreted as representing official policies, either 
 or implied, of Chas Emerick.
 */
 diffview = {
+		
+		
 	/**
 	 * Builds and returns a visual diff view.  The single parameter, `params', should contain
 	 * the following values:
@@ -215,10 +217,9 @@ diffview = {
 							if( queue[0].side == 0 ){
 								var e = document.createElement("td");
 								createDraftTitle().appendTo(e);
-								createParagraph(queue[0].message).appendTo(e);
+								createParagraph().text(queue[0].message).appendTo(e);
 								createTextArea().appendTo(e);
-								createButton().appendTo(e);
-							    
+								createButton('').appendTo(e);
 							    node.appendChild(e);
 							}else{
 								node.appendChild(telt("td", ""));
@@ -228,10 +229,9 @@ diffview = {
 							if( queue[0].side == 1 ){
 								var e = document.createElement("td");
 								createDraftTitle().appendTo(e);
-								createParagraph(queue[0].message).appendTo(e);
+								createParagraph().text(queue[0].message).appendTo(e);
 								createTextArea().appendTo(e);
-								createButton().appendTo(e);
-							    
+								createButton('').appendTo(e);
 							    node.appendChild(e);
 							}else{
 								node.appendChild(telt("td", ""));

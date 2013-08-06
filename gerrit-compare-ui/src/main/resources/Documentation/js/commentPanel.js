@@ -10,24 +10,32 @@
 		    return draft;
 		}
 		
-		function createParagraph(text) 
+		function createParagraph() 
 		{
-			var paragraph =  $('<p/>').attr("class","paragraph").text(text);
+			var paragraph =  $('<p/>').attr("class","paragraph");
 			return paragraph;
 		}
 		
-		function createButton() 
+		function createButton(flag) 
 		{
-			var divTag = $('<div/>').attr("class","commentPanelButtons");
+			var buttonPanel = $('<div/>').attr("class","commentPanelButtons");
 			var saveButton =  $('<Button/>').attr("class","panelButton").attr("onclick","saveReviewerComment(event)").text("Save").hide();
 			var editButton =  $('<Button/>').attr("class","panelButton").attr("onclick","editReviwerComment(event)").text("Edit");
 			var cancelButton = $('<Button/>').attr("class","panelButton").attr("onclick","cancel(event)").text("Cancel").hide();
 			var discardButton =  $('<Button/>').attr("class","panelButton").attr("onclick","deleteTableRow(event)").text("Discard").hide();
-			saveButton.appendTo(divTag); 
-			editButton.appendTo(divTag); 
-			cancelButton.appendTo(divTag); 
-			discardButton.appendTo(divTag); 
-			return divTag;	    
+			
+			if (flag === 'on') {
+				saveButton.show();
+				editButton.hide();
+				cancelButton.hide();
+				discardButton.show();
+			}
+			
+			saveButton.appendTo(buttonPanel); 
+			editButton.appendTo(buttonPanel); 
+			cancelButton.appendTo(buttonPanel); 
+			discardButton.appendTo(buttonPanel); 
+			return buttonPanel;	    
 		}
 		
 		function displayCommentHolder(e)
@@ -36,12 +44,11 @@
 			var rowIndex = e.target.parentNode.rowIndex;
 			var cellIndex = e.target.cellIndex;
 		    var row=table.insertRow(rowIndex);
-		    var textarea = document.createElement('textarea');
-		    textarea.setAttribute('rows', '4');
-		    textarea.setAttribute('cols', '40');
-		    
-		    var paragraph = document.createElement('p');
-		    paragraph.setAttribute('style', 'padding-bottom: 10px;font-family: sans-serif;');
+
+		    var draft = createDraftTitle();
+		    var textarea = createTextArea().show();
+		    var paragraph = createParagraph().hide(); 
+		    var buttons = createButton('on');
 		    
 		    var cell1=row.insertCell(0);
 		    cell1.setAttribute('class', 'lineNumber');
@@ -52,50 +59,16 @@
 		    var cell4=row.insertCell(3);
 		    cell4.setAttribute('style', 'background: #e5ecf9');
 		    
-		    var draft = document.createElement('div');
-		    draft.setAttribute('style', 'font-weight: bold;font-family: sans-serif;padding-bottom: 4px;');
-		    draft.innerHTML = "(Draft)";
-		    
-		    var divTag = document.createElement("div");
-		    divTag.setAttribute('class', 'commentPanelButtons'); 
-		    divTag.setAttribute('style', 'padding-bottom: 5px;');
-		    
-		    var saveButton = document.createElement("Button");
-		    saveButton.innerHTML = "Save";
-		    saveButton.setAttribute('class', 'panelButton'); 
-		    saveButton.setAttribute('onclick','saveReviewerComment(event)');
-		    divTag.appendChild(saveButton);
-		    
-		    var editButton = document.createElement("Button");
-		    editButton.innerHTML = "Edit";
-		    editButton.setAttribute('class', 'panelButton');
-		    editButton.setAttribute('style', 'display: none;'); 
-		    editButton.setAttribute('onclick','editReviwerComment(event)');
-		    divTag.appendChild(editButton);
-		    
-		    var cancelButton = document.createElement("Button");
-		    cancelButton.innerHTML = "Cancel";
-		    cancelButton.setAttribute('class', 'panelButton'); 
-		    cancelButton.setAttribute('style', 'display: none;');
-		    cancelButton.setAttribute('onclick','cancel(event)');
-		    divTag.appendChild(cancelButton);
-		    
-		    var discardButton = document.createElement("Button");
-		    discardButton.innerHTML = "Discard";
-		    discardButton.setAttribute('class', 'panelButton'); 
-		    discardButton.setAttribute('onclick','deleteTableRow(event)');
-		    divTag.appendChild(discardButton);
-		    
 		    if( cellIndex == 1 ){
-		    	cell2.appendChild(draft);
-		        cell2.appendChild(textarea);
-		        cell2.appendChild(paragraph);
-		        cell2.appendChild(divTag);
+		    	draft.appendTo(cell2);
+		    	textarea.appendTo(cell2);
+		    	paragraph.appendTo(cell2);
+		    	buttons.appendTo(cell2);
 		    }else{
-		    	cell4.appendChild(draft);
-		        cell4.appendChild(textarea);
-		        cell4.appendChild(paragraph);
-		        cell4.appendChild(divTag);
+		    	draft.appendTo(cell4);
+		    	textarea.appendTo(cell4);
+		    	paragraph.appendTo(cell4);
+		    	buttons.appendTo(cell4);
 		    }
 		}
 
