@@ -10,15 +10,17 @@
 <link rel="stylesheet" href="css/diffview.css" type="text/css"/>
 <link rel="stylesheet" href="css/flick/jquery-ui-1.9.2.custom.css" type="text/css" />
 <link rel="stylesheet" href="css/styles.css" type="text/css">
-<script type="text/javascript" src="js/dojo.xd.js"></script>
-<script type="text/javascript" src="js/diffview.js"></script>
-<script type="text/javascript" src="js/difflib.js"></script>
-<script type="text/javascript" src="js/jquery.js"></script>
-<script type="text/javascript" src="js/jquery.jkey.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.9.2.custom.js"></script>
-<script type="text/javascript" src="js/JSONParser.js"></script>
-<script type="text/javascript" src="js/pagination.js"></script>
-<script type="text/javascript" src="js/commentPanel.js"></script>
+<script type="text/javascript" src="js/lib/dojo.xd.js"></script>
+<script type="text/javascript" src="js/lib/diffview.js"></script>
+<script type="text/javascript" src="js/lib/difflib.js"></script>
+<script type="text/javascript" src="js/lib/jquery.js"></script>
+<script type="text/javascript" src="js/lib/jquery.tmpl.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.jkey.js"></script>
+<script type="text/javascript" src="js/lib/jquery-ui-1.9.2.custom.js"></script>
+<script type="text/javascript" src="js/app/structuralDiff.js"></script>
+<script type="text/javascript" src="js/app/util.js"></script>
+<script type="text/javascript" src="js/app/commentPanel.js"></script>
+<script type="text/javascript" src="js/app/navigatchanges.js"></script>
 <script>
 			var _init = $.ui.dialog.prototype._init;
 			$.ui.dialog.prototype._init = function() {
@@ -133,6 +135,13 @@
 					<tr></tr>
 				</tbody>  
 	   		</table>
+	   		
+	   		<script id="changeIdList-template" type="text/x-jquery-tmpl">
+    			<tr>
+           			<td><a onclick="init(this)">${change_id}</a></td>
+            		<td>${commitMsg}</td>
+       			</tr>
+     		</script>
 	</div>
 	<div id="dataContainer" class="container" style="display: none;">
 		<!-- *************************************** HEADER  -->
@@ -548,8 +557,8 @@
 		</section>
 	</div>
 	
-	<script type="text/javascript" src="js/jquery.treetable.js"></script>
-	<script  type="text/javascript" src="js/dropdown.js"></script>
-	<script src="js/script.js"></script>
+	<script type="text/javascript" src="js/lib/jquery.treetable.js"></script>
+	<script  type="text/javascript" src="js/lib/dropdown.js"></script>
+	<script src="js/app/script.js"></script>
 </body>
 </html>

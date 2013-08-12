@@ -71,6 +71,9 @@ table.diff tbody td.lineNumber {
 	background: #EED;
 	border: 1px solid #BBC;
 }
+table.diff tbody td.commentPanelBGColor {
+	background-color: #e5ecf9;
+}
 table.diff tbody tr.commentHolder {
 	background: #e5ecf9;
 	height: 40px;
