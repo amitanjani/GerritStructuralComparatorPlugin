@@ -179,7 +179,7 @@ diffview = {
 				
 				
 				toprows.push(node = document.createElement("tr"));
-				node.setAttribute('ondblclick','displayCommentHolder(event)');
+				node.setAttribute('ondblclick','structuralDiff.commentPanel.createCommentPanel(event)');
 				// set id to table to identify changes and to navigate using next/previous button
 				if( change !="equal" && i == 0 ){
 					node.id = "Marker"+ counter;
@@ -216,10 +216,10 @@ diffview = {
 							node.appendChild(document.createElement("th"));
 							if( queue[0].side == 0 ){
 								var e = document.createElement("td");
-								createDraftTitle().appendTo(e);
-								createParagraph().text(queue[0].message).appendTo(e);
-								createTextArea().appendTo(e);
-								createButton('').appendTo(e);
+								structuralDiff.commentPanel.createDraftTitle().appendTo(e);
+								structuralDiff.commentPanel.createParagraph().text(queue[0].message).appendTo(e);
+								structuralDiff.commentPanel.createTextArea().appendTo(e);
+								structuralDiff.commentPanel.createButton('').appendTo(e);
 							    node.appendChild(e);
 							}else{
 								node.appendChild(telt("td", ""));
@@ -228,10 +228,10 @@ diffview = {
 							node.appendChild(document.createElement("th"));
 							if( queue[0].side == 1 ){
 								var e = document.createElement("td");
-								createDraftTitle().appendTo(e);
-								createParagraph().text(queue[0].message).appendTo(e);
-								createTextArea().appendTo(e);
-								createButton('').appendTo(e);
+								structuralDiff.commentPanel.createDraftTitle().appendTo(e);
+								structuralDiff.commentPanel.createParagraph().text(queue[0].message).appendTo(e);
+								structuralDiff.commentPanel.createTextArea().appendTo(e);
+								structuralDiff.commentPanel.createButton('').appendTo(e);
 							    node.appendChild(e);
 							}else{
 								node.appendChild(telt("td", ""));
@@ -240,7 +240,7 @@ diffview = {
 							queue.shift();
 							
 							toprows.push(node = document.createElement("tr"));
-							node.setAttribute('ondblclick','displayCommentHolder(event)');
+							node.setAttribute('ondblclick','structuralDiff.commentPanel.createCommentPanel(event)');
 
 							if( change !="equal" && i == 0 ){
 								node.id = "Marker"+ counter;
