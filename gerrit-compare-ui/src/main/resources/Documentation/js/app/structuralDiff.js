@@ -51,7 +51,7 @@ structuralDiff = (function () {
 	
 	})();
 	
-	// This Method parses the JSONResponse
+	// This Method parses the JSON data
 	function parseJSONResponse(comparatorResult) {
 		var changedFileTreeStructure;
 		var draftMsgArray;
@@ -138,7 +138,7 @@ structuralDiff = (function () {
 	}
 
 	
-	function createModifiedMethodList(parsedJSON, index1, index2, index3, fileOp){
+	function createModifiedMethodList(parsedJSON, index1, index2, index3, fileOp) {
 		var parameter = getParameter(parsedJSON, index1,index2,index3);
 		var methodName =  parsedJSON.types[index1].commonChilds[index2].declarations[index3].name + parameter;
 		var changedFileTreeStructure;
@@ -152,7 +152,7 @@ structuralDiff = (function () {
 			changeStructureTree.addToBaseChangeArray(methodName, parsedJSON.types[index1].commonChilds[index2].declarations[index3].completeNodeValue);
 			changeStructureTree.addToPatchChangeArray(methodName, "");
 		}
-		changedFileTreeStructure = addToModifiedMethodList(index1+1, methodName, fileOp);
+		changedFileTreeStructure = addToModifiedMethodList(index1 + 1, methodName, fileOp);
 		return changedFileTreeStructure;
 	}
 
@@ -186,15 +186,66 @@ structuralDiff = (function () {
 		 $("#changeIdList-template").tmpl(commitList).appendTo("#openStatus");
 	}
 	
+	function createPatchFileNameList(parsedChangeJSON) {
+		var i,
+			j,
+			patch,
+			tbody,
+			id,
+			totalPatches,
+			table;
+		var totalPatchSet = parsedChangeJSON.patchSets.length;
+		var multiArray = new Array(totalPatchSet);
+		for (i = 0; i < parsedChangeJSON.patchSets.length; i++) {
+			patch = parsedChangeJSON.patchSets[i];
+			tbody = "<tbody><tr data-tt-id='1'><td><span class='folder'>Patch "
+					+ (i + 1) + "</span></td></tr>";
+			totalPatches = patch.patchList.length;
+			multiArray[i] = new Array(totalPatches);
+			for (j = 0; j < patch.patchList.length; j++) {
+				tbody += "<tr data-tt-id='1-"
+						+ (j + 1)
+						+ "' data-tt-parent-id='1'><td><span class=\"file\"><a onclick=\"structuralDiff.fetchDatafromURL('"
+						+ patch.patchList[j].fileURL + "','" + j
+						+ "')\" style=\"padding-left: 19px;\"> "
+						+ patch.patchList[j].patchFileName
+						+ "</a></span></td></tr>";
+				multiArray[i][j] = "<a onclick=\"structuralDiff.PatchComparison('"
+						+ patch.patchList[j].fileURL + "')\"> " + (i + 1)
+						+ "</a>";
+
+			}
+			patchset.setMultiArray(multiArray);
+			id = "patch" + (i + 1);
+			tbody += "</tbody>";
+			table = "<table id=\"patch" + (i + 1)
+					+ "\" cellpadding=\"0\" cellspacing=\"0\">" + tbody
+					+ " </table>";
+			$('#'+id).html(table);
+		}
+	}
+	
+	function createPatchSetLabel(patchNo) {
+		var patchSetLabel,
+			i;
+		var multiArray = patchset.getMultiArray();
+		
+		patchSetLabel = "<a onclick=\"structuralDiff.PatchComparison('')\">Base </a>";
+
+		for (i = 0; i < multiArray.length; i++) {
+			patchSetLabel += " ";
+			patchSetLabel += multiArray[i][patchNo];
+		}
+
+		$('#patchSetLabel1').html(patchSetLabel);
+		$('#patchSetLabel2').html(patchSetLabel);
+	}
+	
 	return {
 		// This Method fetches the data from the provided URL
 		fetchDatafromURL: function (url, patchNo) {
 			var baseVersion = "";
 			var patchVersion = "";
-			var patchSetLabel,
-				baseSetLabel,
-				i;
-			var multiArray = patchset.getMultiArray();
 			
 			$("#containerId").hide();
 			$("#wait").show();
@@ -202,16 +253,6 @@ structuralDiff = (function () {
 			urlModule.setLastClickedUrl(url);
 
 			$.get("../gerritPlugin", { url: url  }).done(function (comparatorResult) {
-				patchSetLabel = "<a onclick=\"structuralDiff.PatchComparison('')\">Base </a>";
-				baseSetLabel = "<a onclick=\"structuralDiff.PatchComparison('')\">Base </a>";
-				for (i = 0; i < multiArray.length; i++) {
-					patchSetLabel += " ";
-					patchSetLabel += multiArray[i][patchNo];
-				}
-
-				$('#patchSetLabel1').html(patchSetLabel);
-				$('#patchSetLabel2').html(patchSetLabel);
-
 				if (comparatorResult.indexOf("JavaCode") === 0) {
 					$('#ModificationDetails').treetable('destroy');
 					$('#ModificationDetails').html('');
@@ -221,6 +262,7 @@ structuralDiff = (function () {
 				} else {
 					parseJSONResponse(comparatorResult);
 				}
+				createPatchSetLabel(patchNo);
 				$("#containerId").show();
 				$("#wait").hide();
 				$("#ShowDetail").show();
@@ -275,52 +317,15 @@ structuralDiff = (function () {
 		},
 	
 		getChangeIdDetails: function (key) {
-			var parsedChangeJSON,
-				totalPatchSet,
-				i,
-				j,
-				id,
-				table,
-				patch,
-				tbody,
-				totalPatches,
-				multiArray;
+			var parsedChangeJSON;
 			key = key.trim();
 			$("#containerId").hide();
 			$("#wait").show();
 			
 			$.get("../gerritPlugin", { id:key }).done(function( jsonData ) {
 				parsedChangeJSON = JSON.parse( jsonData ).change;
-				totalPatchSet = parsedChangeJSON.patchSets.length;
 				populateProjectDetails( parsedChangeJSON );
-				multiArray = new Array(totalPatchSet);
-				for (i = 0; i < parsedChangeJSON.patchSets.length; i++) {
-					patch = parsedChangeJSON.patchSets[i];
-					tbody = "<tbody><tr data-tt-id='1'><td><span class='folder'>Patch "
-							+ (i + 1) + "</span></td></tr>";
-					totalPatches = patch.patchList.length;
-					multiArray[i] = new Array(totalPatches);
-					for ( j = 0; j < patch.patchList.length; j++) {
-						tbody += "<tr data-tt-id='1-"
-								+ (j + 1)
-								+ "' data-tt-parent-id='1'><td><span class=\"file\"><a onclick=\"structuralDiff.fetchDatafromURL('"
-								+ patch.patchList[j].fileURL + "','" + j
-								+ "')\" style=\"padding-left: 19px;\"> "
-								+ patch.patchList[j].patchFileName
-								+ "</a></span></td></tr>";
-						multiArray[i][j] = "<a onclick=\"structuralDiff.PatchComparison('"
-								+ patch.patchList[j].fileURL + "')\"> " + (i + 1)
-								+ "</a>";
-
-					}
-					patchset.setMultiArray(multiArray);
-					id = "patch" + (i + 1);
-					tbody += "</tbody>";
-					table = "<table id=\"patch" + (i + 1)
-							+ "\" cellpadding=\"0\" cellspacing=\"0\">" + tbody
-							+ " </table>";
-					$('#'+id).html(table);
-				}
+				createPatchFileNameList(parsedChangeJSON);
 				if (parsedChangeJSON.patchSets.length == 1) {
 					$("#patch2").html('<table id="patch2" cellpadding="0" cellspacing="0"><tbody></tbody></table>');
 					$("#patch3").html('<table id="patch3" cellpadding="0" cellspacing="0"><tbody></tbody></table>');

@@ -66,7 +66,7 @@ structuralDiff.commentPanel = (function () {
 			var cell3 = row.insertCell(2);
 			cell3.setAttribute('class', 'lineNumber');
 			var cell4 = row.insertCell(3);
-			cell4.setAttribute('style', 'commentPanelBGColor');
+			cell4.setAttribute('class', 'commentPanelBGColor');
 
 			if (cellIndex === 1) {
 				draft.appendTo(cell2);
