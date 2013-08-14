@@ -44,7 +44,6 @@ Copy *"gerrit-compare-plugin\gerrit-compare-ui\target\gerrit-compare-plugin-x.x-
 ![Alt text](GerritPluginList.png "Gerrit Plugins")
 
 
-
 ##Bugs
 If you find an issue, let us know [here](https://github.com/sans-sense/GerritStructuralComparatorPlugin/issues?page=1&state=open) 
 
