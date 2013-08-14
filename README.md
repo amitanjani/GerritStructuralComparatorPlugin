@@ -23,6 +23,28 @@ Diff tool designed for "Structural Programming"
 Please click [here](https://github.com/amitanjani/gerrit-compare-plugin/archive/master.zip) to download the latest version of Gerrit-Compare-Plugin.
 
 
+##Building
+
+In order to build Gerrit-Compare-Plugin you will need the following applications:
+
+- Java JDK 6 (http://www.oracle.com/technetwork/java/javase/downloads/index.html).
+- Apache Maven 3.x (http://maven.apache.org/)
+
+To build Gerrit-Compare-Plugin, open your console, change to Gerrit-Compare-Plugin folder where pom.xml file is placed, and issue this command :
+
+<pre>
+    mvn package
+</pre>
+
+
+##Deployment
+
+Copy *"gerrit-compare-plugin\gerrit-compare-ui\target\gerrit-compare-plugin-x.x-SNAPSHOT.jar"* to your gerrit setup plugin folder. No need to restart server, Plugins are automatically scanned and loaded.
+
+![Alt text](GerritPluginList.png "Gerrit Plugins")
+
+
+
 ##Bugs
 If you find an issue, let us know [here](https://github.com/sans-sense/GerritStructuralComparatorPlugin/issues?page=1&state=open) 
 
