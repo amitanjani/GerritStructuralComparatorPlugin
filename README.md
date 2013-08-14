@@ -5,7 +5,7 @@ Diff tool designed for "Structural Programming"
 
 ##Introduction
 
-Gerrit-Compare-Plugin makes reviews easier by showing changes by selected property/method name in a side-by-side display, and allowing inline comments to be added by any reviewer. This plugin show changes by comparing property/method with the matching one, no matter what the order of property/method is in the two versions.
+Gerrit-Compare-Plugin, a language-aware diff tool, makes reviews easier by showing changes of selected property/method name in a side-by-side display, and allowing inline comments to be added by any reviewer. It compares source code  syntactically rather than traditional paradigm of comparing lines and characters. This helps us to trace actual changes, even if methods are moved to another location or appear in different order.
 
 
 ##Features
