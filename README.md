@@ -37,7 +37,7 @@ To build Gerrit-Compare-Plugin, open your console, change to Gerrit-Compare-Plug
 </pre>
 
 
-##Deployment
+##Installation
 
 Copy *"gerrit-compare-plugin\gerrit-compare-ui\target\gerrit-compare-plugin-x.x-SNAPSHOT.jar"* to your gerrit setup plugin folder. No need to restart server, Plugins are automatically scanned and loaded.
 
