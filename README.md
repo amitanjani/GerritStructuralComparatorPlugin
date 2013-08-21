@@ -5,7 +5,7 @@ Diff tool designed for Structural Comparison of Programs
 
 ##Introduction
 
- Gerrit-Compare-Plugin, a language-aware diff tool, developed for a released Gerrit version 2.5.2. This plugin makes review easier by showing changes of selected property/method name in a side-by-side display, and allowing inline comments to be added by any reviewer. It compares source code  syntactically rather than traditional paradigm of comparing lines and characters. This helps us to trace actual changes, even if methods are moved to another location or appear in different order.
+ Gerrit-Compare-Plugin, a language-aware diff tool, developed for a released `Gerrit version 2.5.2`. This plugin makes review easier by showing changes of selected property/method name in a side-by-side display, and allowing inline comments to be added by any reviewer. It compares source code  syntactically rather than default paradigm of comparing lines and characters. This helps us to trace actual changes, even if methods are moved to another location or appear in different order.
 
 
 ##Features
@@ -41,7 +41,7 @@ To build Gerrit-Compare-Plugin
 
 ##Installation
 
-Copy *"gerrit-compare-plugin\gerrit-compare-ui\target\gerrit-compare-plugin-x.x-SNAPSHOT.jar"* to your gerrit setup plugin folder. No need to restart server, Plugins are automatically scanned and loaded.
+Copy *"gerrit-compare-plugin\gerrit-compare-ui\target\gerrit-compare-plugin-x.x-SNAPSHOT.jar"* to your gerrit setup plugin folder. No need to restart server, Plugins are automatically scanned and loaded. To watch `Gerrit installation procedure` video click [here...](http://www.youtube.com/watch?v=eo-_WNP3Evk)
 
 ![Alt text](GerritPluginList.png "Gerrit Plugins")
 
