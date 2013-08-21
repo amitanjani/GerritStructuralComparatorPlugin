@@ -12,10 +12,10 @@ Diff tool designed for Structural Comparison of Programs
 
  Following are some of the main features of Gerrit-Compare-Plugin:
 
-- Refactor detection: It can find renamed, moved, reordered, wrapped, lifted, combined or fragmented code. Structured Difference allows focusing on the actual changes because it ignores location. Compare this for example with the regular file based difference that reports the entire method as new and deleted and therefore making the actual changes untraceable.
-- Format insensitivity: The comparison result will not be affected by linebreaks or whitespaces.
-- Navigation tree: The Navigation tree shows a hierarchal overview of changed, added and removed entities. This allows fast navigation to inspect change details.
-- Comprehensible output: The interactive UI helps users to navigate and understand changes efficiently.
+- **Refactor detection:** It can find renamed, moved, reordered, wrapped, lifted, combined or fragmented code. Structured Difference allows focusing on the actual changes because it ignores location. Compare this for example with the regular file based difference that reports the entire method as new and deleted and therefore making the actual changes untraceable.
+- **Format insensitivity:** The comparison result will not be affected by linebreaks or whitespaces.
+- **Navigation tree:** The Navigation tree shows a hierarchal overview of changed, added and removed entities. This allows fast navigation to inspect change details.
+- **Comprehensible output:** The interactive UI helps users to navigate and understand changes efficiently.
 
 
 ##Download
