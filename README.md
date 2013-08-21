@@ -1,11 +1,11 @@
 #Gerrit-Compare-Plugin
-Diff tool designed for "Structural Programming"
+Diff tool designed for Structural Comparison of Programs
 
 -------------------------
 
 ##Introduction
 
- Gerrit-Compare-Plugin, a language-aware diff tool, makes reviews easier by showing changes of selected property/method name in a side-by-side display, and allowing inline comments to be added by any reviewer. It compares source code  syntactically rather than traditional paradigm of comparing lines and characters. This helps us to trace actual changes, even if methods are moved to another location or appear in different order.
+ Gerrit-Compare-Plugin, a language-aware diff tool, developed for a released Gerrit version 2.5.2. This plugin makes review easier by showing changes of selected property/method name in a side-by-side display, and allowing inline comments to be added by any reviewer. It compares source code  syntactically rather than traditional paradigm of comparing lines and characters. This helps us to trace actual changes, even if methods are moved to another location or appear in different order.
 
 
 ##Features
@@ -21,6 +21,29 @@ Diff tool designed for "Structural Programming"
 ##Download
 
 Please click [here](https://github.com/amitanjani/gerrit-compare-plugin/archive/master.zip) to download the latest version of Gerrit-Compare-Plugin.
+
+
+##Building
+
+In order to build Gerrit-Compare-Plugin you will need the following applications:
+
+- Java JDK 6 (http://www.oracle.com/technetwork/java/javase/downloads/index.html).
+- Apache Maven 3.x (http://maven.apache.org/)
+
+To build Gerrit-Compare-Plugin
+- Unzip the downloaded version of Gerrit-Compare-Plugin to the directory you wish to save.
+- Open your console and change to Gerrit-Compare-Plugin folder where pom.xml file is placed, and issue this command :
+
+<pre>
+    mvn package
+</pre>
+
+
+##Installation
+
+Copy *"gerrit-compare-plugin\gerrit-compare-ui\target\gerrit-compare-plugin-x.x-SNAPSHOT.jar"* to your gerrit setup plugin folder. No need to restart server, Plugins are automatically scanned and loaded.
+
+![Alt text](GerritPluginList.png "Gerrit Plugins")
 
 
 ##Bugs
