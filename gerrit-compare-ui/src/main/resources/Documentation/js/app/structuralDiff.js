@@ -246,7 +246,7 @@ structuralDiff = (function () {
 		fetchDatafromURL: function (url, patchNo) {
 			var baseVersion = "";
 			var patchVersion = "";
-			
+			commentPanelCell.setEditableFlag("true");
 			$("#containerId").hide();
 			$("#wait").show();
 			
@@ -276,7 +276,7 @@ structuralDiff = (function () {
 			var patchVersion = "";
 			var urlPath;
 			var lastClickedUrl = urlModule.getLastClickedUrl();
-
+			commentPanelCell.setEditableFlag("true");
 			$("#containerId").hide();
 			$("#wait").show();
 			
@@ -355,7 +355,7 @@ structuralDiff = (function () {
 			structuralDiff.diffUsingJS(baseChangeArray[key], patchChangeArray[key], null );
 		},
 		
-		saveReviewerComment: function (e) {
+		saveReviewerComment: function (e,line) {
 			var rowIndex = e.target.parentNode.parentNode.parentNode.rowIndex;
 			var cellIndex = e.target.parentNode.parentNode.cellIndex; 
 			var tableColumn = e.target.parentNode.parentNode;
@@ -371,27 +371,28 @@ structuralDiff = (function () {
 				
 				var divTag = e.target.parentNode;
 				var buttons = divTag.getElementsByTagName('button');
+				commentPanelCell.setEditableFlag("true");
 				$(buttons[0]).hide();
 				$(buttons[1]).show();
 				$(buttons[2]).hide();
 				$(buttons[3]).hide();
-				$.get("../patchDetailService", { lineNumber:rowIndex, side:cellIndex, message:draftMessage, changeDetail:lastClickedUrl, flag:'save' }).done(function( result ) {
+				$.get("../patchDetailService", { lineNumber:line, side:cellIndex, message:draftMessage, changeDetail:lastClickedUrl, flag:'save' }).done(function( result ) {
 					console.log('Draft Message saved successfully ')
 				});
 			}
 		},
 
-		deleteTableRow: function (e){
+		deleteTableRow: function (e,line){
 			var rowIndex = e.target.parentNode.parentNode.parentNode.rowIndex;
 			var cellIndex = e.target.parentNode.parentNode.cellIndex; 
 			var tableColumn = e.target.parentNode.parentNode;
 			var element = tableColumn.getElementsByTagName('textarea');
 			var draftMessage = element[0].value;
 			var lastClickedUrl = urlModule.getLastClickedUrl();
-			
+			commentPanelCell.setEditableFlag("true");
 			document.getElementById("diffOutTable").deleteRow(rowIndex);
 			if( draftMessage != ''){
-				$.get("../patchDetailService", { lineNumber:rowIndex, side:cellIndex, message:draftMessage, changeDetail:lastClickedUrl, flag:'discard' }).done(function( result ) {
+				$.get("../patchDetailService", { lineNumber:line, side:cellIndex, message:draftMessage, changeDetail:lastClickedUrl, flag:'discard' }).done(function( result ) {
 					console.log('Draft Message Deleted successfully ')
 				});
 			}

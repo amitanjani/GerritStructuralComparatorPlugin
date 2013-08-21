@@ -61,7 +61,6 @@ public class ComparatorImpl{
 	private void processImports(CompilationUnit actualCompilationUnit, CompilationUnit expectedCompilationUnit) {
 		Map<String, Import> bufferImports = ComparatorUtil.getBufferImports(actualCompilationUnit);
 		List<Import> imports =  ComparatorUtil.compareWithBufferedimports(bufferImports, expectedCompilationUnit);
-		
 		result.setImports(imports);
 	}
 	

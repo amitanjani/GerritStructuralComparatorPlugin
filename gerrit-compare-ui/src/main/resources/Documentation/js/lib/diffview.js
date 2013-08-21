@@ -112,7 +112,7 @@ diffview = {
 		var rows = [];
 		var node2;
 		var counter = 0;
-		var rowCounter = 0;
+		//var rowCounter = 0;
 		
 		/**
 		 * Adds two cells to the given row; if the given row corresponds to a real
@@ -141,6 +141,25 @@ diffview = {
 			row.appendChild(ctelt("td", change, textLines[tidx != null ? tidx : tidx2].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0")));
 		}
 		
+		function createRow(change,i,counter,rowcnt) {
+			var node = document.createElement("tr");
+			node.setAttribute('ondblclick','structuralDiff.commentPanel.createCommentPanel(event)');
+
+			if( change !="equal" && i == 0 ){
+				node.id = "Marker"+ counter;
+				counter++;
+			}
+			
+			if( change == "equal" && i != rowcnt-1 ){
+				node.className = "hide_Rows";
+			}
+			
+			if( (change == "equal" && i == 0 ) ){
+				node.className = "";
+			}
+			return node;
+		}
+		
 		for (var idx = 0; idx < opcodes.length; idx++) {
 			code = opcodes[idx];
 			change = code[0];
@@ -153,7 +172,6 @@ diffview = {
 			var botrows = [];
 			
 			for (var i = 0; i < rowcnt; i++) {
-				rowCounter++;
 				// jump ahead if we've alredy provided leading context or if this is the first range
 				if (contextSize && opcodes.length > 1 && ((idx > 0 && i == contextSize) || (idx == 0 && i == 0)) && change=="equal") {
 					var jump = rowcnt - ((idx == 0 ? 1 : 2) * contextSize);
@@ -177,24 +195,8 @@ diffview = {
 					}
 				}
 				
-				
-				toprows.push(node = document.createElement("tr"));
-				node.setAttribute('ondblclick','structuralDiff.commentPanel.createCommentPanel(event)');
-				// set id to table to identify changes and to navigate using next/previous button
-				if( change !="equal" && i == 0 ){
-					node.id = "Marker"+ counter;
-					counter++;
-				}
-				
-				
-				// condition added to display one line before and one line after change to UI
-				if( change == "equal" && i != rowcnt-1 ){
-					node.className = "hide_Rows";
-				}
-				
-				if( (change == "equal" && i == 0 ) ){
-					node.className = "";
-				}
+				change,i,counter,rowcnt
+				toprows.push(node = createRow(change,i,counter,rowcnt));
 				
 				if (inline) {
 					if (change == "insert") {
@@ -211,50 +213,77 @@ diffview = {
 					}
 				} else {
 					if( queue.length > 0){
-						if( queue[0].line == rowCounter  ){
+						if ( queue[0].side == 0 && queue[0].line == b) {
+							node.setAttribute('ondblclick','');
 							node.className = "commentHolder";
 							node.appendChild(document.createElement("th"));
-							if( queue[0].side == 0 ){
-								var e = document.createElement("td");
+							var e = document.createElement("td");
+							if (queue[0].status === "PUBLISHED") {
+								structuralDiff.commentPanel.createDraftTitle().text(queue[0].author).appendTo(e);
+								structuralDiff.commentPanel.createParagraph().text(queue[0].message).appendTo(e);
+								structuralDiff.commentPanel.createButton('published',b).appendTo(e);
+								structuralDiff.commentPanel.createHiddenElem().text(queue[0].line).appendTo(e);
+							} else if (queue[0].status === "DRAFT") {
 								structuralDiff.commentPanel.createDraftTitle().appendTo(e);
 								structuralDiff.commentPanel.createParagraph().text(queue[0].message).appendTo(e);
 								structuralDiff.commentPanel.createTextArea().appendTo(e);
-								structuralDiff.commentPanel.createButton('').appendTo(e);
-							    node.appendChild(e);
-							}else{
-								node.appendChild(telt("td", ""));
+								structuralDiff.commentPanel.createButton('',b).appendTo(e);
+								structuralDiff.commentPanel.createHiddenElem().text(queue[0].line).appendTo(e);
 							}
-							
+						    node.appendChild(e);
+						}else if( queue[0].side == 1 && queue[0].line == n){
 							node.appendChild(document.createElement("th"));
-							if( queue[0].side == 1 ){
-								var e = document.createElement("td");
+							node.appendChild(telt("td", ""));
+						}
+						
+						
+						if( queue[0].side == 1 && queue[0].line == n){
+							node.setAttribute('ondblclick','');
+							node.className = "commentHolder";
+							node.appendChild(document.createElement("th"));
+							var e = document.createElement("td");
+							if (queue[0].status === "PUBLISHED") {
+								structuralDiff.commentPanel.createDraftTitle().text(queue[0].author).appendTo(e);
+								structuralDiff.commentPanel.createParagraph().text(queue[0].message).appendTo(e);
+								structuralDiff.commentPanel.createButton('published',n).appendTo(e);
+								structuralDiff.commentPanel.createHiddenElem().text(queue[0].line).appendTo(e);
+							} else if (queue[0].status === "DRAFT") {
 								structuralDiff.commentPanel.createDraftTitle().appendTo(e);
 								structuralDiff.commentPanel.createParagraph().text(queue[0].message).appendTo(e);
 								structuralDiff.commentPanel.createTextArea().appendTo(e);
-								structuralDiff.commentPanel.createButton('').appendTo(e);
-							    node.appendChild(e);
-							}else{
-								node.appendChild(telt("td", ""));
+								structuralDiff.commentPanel.createButton('',n).appendTo(e);
+								structuralDiff.commentPanel.createHiddenElem().text(queue[0].line).appendTo(e);
 							}
-							
+						    node.appendChild(e);
+						    queue.shift();
+						    if( queue.length > 0){
+						    	var newRowCrFlag = (queue[0].line == b && queue[0].side == 0) || (queue[0].line == n && queue[0].side == 1);
+						    	if(!newRowCrFlag){
+						    		toprows.push(node = createRow(change,i,counter,rowcnt));
+						    	}
+						    } else if (queue.length == 0) {
+						    	toprows.push(node = createRow(change,i,counter,rowcnt));
+						    }
+						}else if ( queue[0].side == 0 && queue[0].line == b){
+							node.appendChild(document.createElement("th"));
+							node.appendChild(telt("td", ""));
 							queue.shift();
-							
-							toprows.push(node = document.createElement("tr"));
-							node.setAttribute('ondblclick','structuralDiff.commentPanel.createCommentPanel(event)');
-
-							if( change !="equal" && i == 0 ){
-								node.id = "Marker"+ counter;
-								counter++;
-							}
-							
-							if( change == "equal" && i != rowcnt-1 ){
-								node.className = "hide_Rows";
-							}
-							
-							if( (change == "equal" && i == 0 ) ){
-								node.className = "";
+							if( queue.length > 0){
+								var newRowCrFlag = (queue[0].line == b && queue[0].side == 0) || (queue[0].line == n && queue[0].side == 1);
+								if(!newRowCrFlag){
+									toprows.push(node = createRow(change,i,counter,rowcnt));
+								}
+							} else if (queue.length == 0) {
+						    	toprows.push(node = createRow(change,i,counter,rowcnt));
 							}
 						}
+						
+						if( queue.length > 0){
+							if((queue[0].line == b && queue[0].side == 0) || (queue[0].line == n && queue[0].side == 1)){
+								--i;
+								continue;
+							}
+						} 
 					}
 					
 					b = addCells(node, b, be, baseTextLines, change);
