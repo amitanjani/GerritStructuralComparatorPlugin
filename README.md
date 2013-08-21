@@ -12,10 +12,10 @@ Diff tool designed for Structural Comparison of Programs
 
  Following are some of the main features of Gerrit-Compare-Plugin:
 
-- Refactor detection. It can find renamed, moved, reordered, wrapped, lifted, combined or fragmented code. Structured Difference allows focusing on the actual changes because it ignores location. Compare this for example with the regular file based difference that reports the entire method as new and deleted and therefore making the actual changes untraceable.
-- Format insensitivity. The comparison result will not be affected by linebreaks or whitespaces.
-- Navigation tree. The Navigation tree shows a hierarchal overview of changed, added and removed entities. This allows fast navigation to inspect change details.
-- Comprehensible output. The interactive UI helps users to navigate and understand changes efficiently.
+- Refactor detection: It can find renamed, moved, reordered, wrapped, lifted, combined or fragmented code. Structured Difference allows focusing on the actual changes because it ignores location. Compare this for example with the regular file based difference that reports the entire method as new and deleted and therefore making the actual changes untraceable.
+- Format insensitivity: The comparison result will not be affected by linebreaks or whitespaces.
+- Navigation tree: The Navigation tree shows a hierarchal overview of changed, added and removed entities. This allows fast navigation to inspect change details.
+- Comprehensible output: The interactive UI helps users to navigate and understand changes efficiently.
 
 
 ##Download
@@ -33,7 +33,6 @@ In order to build Gerrit-Compare-Plugin you will need the following applications
 To build Gerrit-Compare-Plugin
 - Unzip the downloaded version of Gerrit-Compare-Plugin to the directory you wish to save.
 - Open your console and change to Gerrit-Compare-Plugin folder where pom.xml file is placed, and issue this command :
-
 <pre>
     mvn package
 </pre>
@@ -41,7 +40,7 @@ To build Gerrit-Compare-Plugin
 
 ##Installation
 
-Copy *"gerrit-compare-plugin\gerrit-compare-ui\target\gerrit-compare-plugin-x.x-SNAPSHOT.jar"* to your gerrit setup plugin folder. No need to restart server, Plugins are automatically scanned and loaded. To watch `Gerrit installation procedure` video click [here...](http://www.youtube.com/watch?v=eo-_WNP3Evk)
+Copy `"gerrit-compare-plugin\gerrit-compare-ui\target\gerrit-compare-plugin-x.x-SNAPSHOT.jar"` to your gerrit setup plugin folder. No need to restart server, Plugins are automatically scanned and loaded. To watch `Gerrit installation procedure` video click [here...](http://www.youtube.com/watch?v=eo-_WNP3Evk)
 
 ![Alt text](GerritPluginList.png "Gerrit Plugins")
 
