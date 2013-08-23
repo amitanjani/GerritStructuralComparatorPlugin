@@ -61,3 +61,14 @@ structuralDiff.diffUsingJS =  function (baseVersion, patchVersion, draftMsgArray
 		}
 	}
 };
+
+structuralDiff.createBaseURL = function (url) {
+	var baseUrl;
+	if (url.length > 0) {
+		baseUrl = url.substring(0,url.length - 1);
+		baseUrl = baseUrl.concat("1");
+		return baseUrl;
+	} else {
+		return "";
+	}
+};

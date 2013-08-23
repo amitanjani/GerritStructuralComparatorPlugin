@@ -66,7 +66,6 @@ public class GerritPlugin extends HttpServlet {
 		out = resp.getWriter();
 		
 		try {
-			
 			String patchUrl = req.getParameter("url");
 			String patchSetUrl1 = req.getParameter("patchSetURL1");
 			String patchSetUrl2 = req.getParameter("patchSetURL2");
@@ -152,17 +151,21 @@ public class GerritPlugin extends HttpServlet {
 		ComparisonResult compareResult = null;
 		try{
 			compareResult = comparatorImpl.compare( baseFile, patchFile );
-			List<DraftMessage> draftMessage = DraftUtil.loadDraftMessage(dbFactory, changeControlFactory, patchUrl);
+			DraftUtil draftUtil = new DraftUtil();
+			List<DraftMessage> draftMessage = draftUtil.loadDraftMessage(dbFactory, changeControlFactory, baseUrl, patchUrl);
 			
-			Collections.sort(draftMessage, new Comparator<DraftMessage>() {
-				@Override
-				public int compare(DraftMessage o1, DraftMessage o2) {
-					return Integer.valueOf(o1.getLine()).compareTo(Integer.valueOf(o2.getLine()));
-				}
-			});
+			if ( null != draftMessage ){
+				Collections.sort(draftMessage, new Comparator<DraftMessage>() {
+					@Override
+					public int compare(DraftMessage o1, DraftMessage o2) {
+						return Integer.valueOf(o1.getLine()).compareTo(Integer.valueOf(o2.getLine()));
+					}
+				});
+				
+				compareResult.setDraftMessage(draftMessage);
+				log.debug("draftMessage Size:: "+draftMessage.size());
+			}
 			
-			compareResult.setDraftMessage(draftMessage);
-			log.debug("draftMessage Size:: "+draftMessage.size());
 		}catch (Exception e) {
 			log.error( "Exception during file Comparison ", e);
 			out.write("JavaCode \n"+e);

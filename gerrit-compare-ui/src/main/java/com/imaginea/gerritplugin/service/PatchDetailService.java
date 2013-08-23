@@ -1,12 +1,8 @@
 package com.imaginea.gerritplugin.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -30,9 +26,15 @@ import com.google.gerrit.server.IdentifiedUser;
 import com.google.gerrit.server.project.ChangeControl;
 import com.google.gerrit.server.project.NoSuchChangeException;
 import com.google.gwtorm.server.OrmException;
-import com.google.gwtorm.server.ResultSet;
 import com.google.gwtorm.server.SchemaFactory;
 import com.google.inject.Inject;
+import com.imaginea.comparator.domain.DraftMessage;
+import com.imaginea.gerritplugin.utils.DraftUtil;
+import com.imaginea.gerritplugin.utils.PatchDetail;
+
+/* 
+ * PatchDetailService is servlet defined to save reviewer comment in DB
+ * */
 
 @Export("/patchDetailService")
 public class PatchDetailService extends HttpServlet{
@@ -55,47 +57,116 @@ public class PatchDetailService extends HttpServlet{
 	
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String reviewerComment = req.getParameter("message");
-		String changeDetail = req.getParameter("changeDetail");
+		String baseUrl = req.getParameter("baseUrl");
+		String patchUrl = req.getParameter("patchUrl");
+		String flag =  req.getParameter("flag");
 		int line = Integer.valueOf(req.getParameter("lineNumber"));
 		int tmpSide = Integer.valueOf(req.getParameter("side"));
 		
-		String change_id = "0";
-		String patchId = "1";
+		Patch.Key parentKey = null;
+		PatchDetail detail = null;
+		PatchLineComment comment = null;
+		
 		final short side;
-
+		int SideUI = 0;
+		
+		List<DraftMessage> draftMessage = null;
+		DraftMessage message = null;
+		
 		log.debug("reviewerComment "+reviewerComment);
 		log.debug("lineNumber "+line);
-		log.debug("changeDetail "+changeDetail);
+		log.debug("patchUrl "+patchUrl);
 		log.debug("Side "+tmpSide);
 		
 		if( tmpSide == 1 ){
-			side = (short) 0;
+			SideUI = 0;
+			validateChangeId(baseUrl);
+			detail = new PatchDetail(baseUrl);
+			if (!detail.isBaseSet()){
+				side = (short) 1;
+			}else{
+				side = (short) 0;
+			}
 		}else if( tmpSide == 3 ){
-			side = (short) 1;
+			SideUI = 1;
+			validateChangeId(patchUrl);
+			detail = new PatchDetail(patchUrl);
+			if (detail.isBaseSet()){
+				side = (short) 0;
+			}else{
+				side = (short) 1;
+			}
 		}else{
 			side = (short) 1;
 			log.debug("Invalid side");
 		}
+		log.debug("Side::"+side);
+		 try {
+			draftMessage = loadDraftMessage( baseUrl, patchUrl );
+		} catch (OrmException e1) {
+			log.debug("OrmException ",e1);
+		}
+
+		final CurrentUser user = control.getCurrentUser();
+		final Account.Id me = user instanceof IdentifiedUser ? ((IdentifiedUser) user).getAccountId(): null;
+		log.debug("account.getId() " + me);
 		
-		
-		String[] tmpArray = changeDetail.split(",");
-		if( tmpArray.length == 3 ){
-			patchId = tmpArray[1];
-			String[] tmpChangeId = tmpArray[0].split("/");
-			if( tmpChangeId.length == 5 ){
-				change_id = tmpChangeId[4];
+		for(Object obj:draftMessage){
+			message = (DraftMessage)obj;
+			if( null != message && message.getLine() == line && message.getSide() == SideUI && message.getStatus().toString().equals("DRAFT")){
+				 if( tmpSide == 1 ){
+					 parentKey = getPatchKey(baseUrl);
+				 }else if( tmpSide == 3 ){
+					 parentKey = getPatchKey(patchUrl);
+				 }
+				comment = new PatchLineComment(new PatchLineComment.Key(parentKey, message.getUuid()),line, me, null);
+				 if( flag.equalsIgnoreCase("discard")){
+					 try {
+						deleteDraft(parentKey, message.getUuid());
+					} catch (Failure e) {
+						log.debug("Failure ",e);
+					} catch (OrmException e) {
+						log.debug("OrmException ",e);
+					}
+				 }
 			}
 		}
-		String tmpFileName = tmpArray[2];
-		String fileName = null;
 		
-		if( null != tmpFileName && (tmpFileName.length()-2) > 0){
-			fileName = tmpFileName.substring(0, tmpFileName.length()-2 );
-		}
+		 if( flag.equalsIgnoreCase("save")){
+			 if( null == comment ){
+				 log.debug("comment null");
+				 if( tmpSide == 1 ){
+					 parentKey = getPatchKey(baseUrl);
+				 }else if( tmpSide == 3 ){
+					 parentKey = getPatchKey(patchUrl);
+				 }
+				 comment = new PatchLineComment(new PatchLineComment.Key(parentKey, null),line, me, null);
+			 }
+			 comment.setSide(side);
+			 comment.setMessage( reviewerComment );
+			 try {
+				saveDraft(comment);
+			} catch (NoSuchChangeException e) {
+				log.debug("NoSuchChangeException ",e);
+			} catch (OrmException e) {
+				log.debug("OrmException ",e);
+			}
+		 }
+	}
+	
+	
+	private Patch.Key getPatchKey(String patchUrl){
+		Change.Id change;
+		PatchSet.Id idSide;
 		
+		PatchDetail patchDetail = new PatchDetail(patchUrl);
+		int patchId = patchDetail.getPatchSetId();
+		int change_id = patchDetail.getChangeId();
+		String fileName = patchDetail.getFileName();
 		
-		Change.Id change = new Change.Id(Integer.valueOf(change_id));
-		final Patch.Key parentKey;
+		change = new Change.Id(change_id);
+		idSide = new PatchSet.Id(change, patchId);
+		
 		try {
 			control = changeControlFactory.validateFor(change);
 		} catch (NoSuchChangeException e1) {
@@ -104,65 +175,16 @@ public class PatchDetailService extends HttpServlet{
 			log.debug("OrmException ", e1);
 		}
 		
-		final CurrentUser user = control.getCurrentUser();
-		final Account.Id me = user instanceof IdentifiedUser ? ((IdentifiedUser) user).getAccountId(): null;
+		Patch.Key parentKey = new Patch.Key(idSide, fileName);
 		
-		PatchSet.Id idSideB = new PatchSet.Id(change, Integer.valueOf(patchId));
-       
+		return parentKey;
 		
-		parentKey = new Patch.Key(idSideB, fileName);
-			
-		
-        
-		 log.debug("account.getId() " + me);
-		 
-		 try {
-			 log.debug("Calling saveDraftFactory");
-			 Set<PatchLineComment> draftMessage = loadDraftMessage( change, idSideB, fileName );
-			 PatchLineComment comment = null;
-			 log.debug("idSideB::"+idSideB);
-			 log.debug("DraftMessage Size:: "+draftMessage.size());
-			 
-			 Iterator itr = draftMessage.iterator();
-			 String flag =  req.getParameter("flag");
-			 log.debug("flag "+flag);
-			 if( draftMessage.size() > 0 ){
-				 while( itr.hasNext() ){
-					 PatchLineComment lineComment = (PatchLineComment)itr.next();
-					 if( lineComment.getLine() == line && lineComment.getSide() == side ){
-						 log.debug("UUID::"+lineComment.getKey().get());
-						 comment = new PatchLineComment(new PatchLineComment.Key(parentKey, lineComment.getKey().get()),line, me, null);
-						 if( flag.equalsIgnoreCase("discard")){
-							 try {
-								deleteDraft(parentKey, lineComment.getKey().get());
-							} catch (Failure e) {
-								log.debug("Failure ",e);
-							}
-						 }
-					 }
-				 }
-				 if( null == comment ){
-					 comment = new PatchLineComment(new PatchLineComment.Key(parentKey, null),line, me, null);
-				 }
-			 }else{
-				 comment = new PatchLineComment(new PatchLineComment.Key(parentKey, null),line, me, null);
-			 }
-			 comment.setSide(side);
-			 comment.setMessage( reviewerComment );
-			 
-			 if( flag.equalsIgnoreCase("save")){
-				 saveDraft(comment);
-			 }
-		} catch (OrmException e) {
-			log.debug("OrmException ", e);
-		} catch (NoSuchChangeException e) {
-			log.debug("NoSuchChangeException ", e);
-		} 
 	}
 	
 	
+	
 	// Arguement require: patchLineComment Object
-	 private PatchLineComment saveDraft( PatchLineComment comment ) throws NoSuchChangeException, OrmException {
+	private PatchLineComment saveDraft( PatchLineComment comment ) throws NoSuchChangeException, OrmException {
 		    if (comment.getStatus() != PatchLineComment.Status.DRAFT) {
 		      throw new IllegalStateException("Comment published");
 		    }
@@ -201,7 +223,6 @@ public class PatchDetailService extends HttpServlet{
 		            throw new IllegalStateException("Parent comment must be on same side");
 		          }
 		        }
-
 			        
 		        final PatchLineComment nc =
 		            new PatchLineComment(new PatchLineComment.Key(patchKey, ChangeUtil
@@ -233,7 +254,7 @@ public class PatchDetailService extends HttpServlet{
 		    }
 		  }
 	 
-	 // Arguement require: changeId and UUID
+	 
 	private void deleteDraft(Patch.Key patch_key, String UUID) throws OrmException, Failure{
 		 log.debug("UUID from deleteDraft() method "+UUID);
 		 
@@ -275,45 +296,22 @@ public class PatchDetailService extends HttpServlet{
 	        }
 	 }
 	 
-	// Arguement require: changeId and pastchSetId
-	private Set<PatchLineComment> loadDraftMessage( Change.Id changeId, PatchSet.Id patchSetId, String fileName ) throws OrmException {
-		log.debug("loadPatchSets() Method Arguement "+changeId); 
+	private void validateChangeId( String patchUrl ){
+		PatchDetail patchDetail = new PatchDetail(patchUrl);
+		Change.Id changeId = new Change.Id( patchDetail.getChangeId() );
 		try {
-			db = dbFactory.open();
-		} catch (OrmException e) {
-			log.error("OrmException::",e);
+			control = changeControlFactory.validateFor( changeId );
+		} catch (NoSuchChangeException e1) {
+			log.debug("NoSuchChangeException ", e1);
+		} catch (OrmException e1) {
+			log.debug("OrmException ", e1);
 		}
-	    ResultSet<PatchSet> source = db.patchSets().byChange(changeId);
-	    List<PatchSet> patches = new ArrayList<PatchSet>();
-	    Set<PatchLineComment> patchesDraftSet = new HashSet<PatchLineComment>();
-	    final CurrentUser user = control.getCurrentUser();
-	    final Account.Id me = user instanceof IdentifiedUser ? ((IdentifiedUser) user).getAccountId():null;
-	    for (PatchSet ps : source) {
-	      final PatchSet.Id psId = ps.getId();
-	      if( psId.equals( patchSetId) ){
-	    	  if (control.isPatchVisible(ps, db)) {
-	  	        patches.add(ps);
-	  	        if (me != null && db.patchComments().draftByPatchSetAuthor(psId, me).iterator().hasNext()) {
-	  	        	log.debug("patchesWithDraftComments "+psId);
-	  	        	ResultSet<PatchLineComment> patchComment = db.patchComments().byPatchSet(psId);
-	  	        	Iterator itr = patchComment.iterator();
-	  	        	PatchLineComment comment = null;
-	  	        	while( itr.hasNext() ){
-	  	        			comment = (PatchLineComment)itr.next();
-	  		        		log.debug("Message "+comment.getMessage());
-	  		        		log.debug("Side "+comment.getSide());
-	  		        		log.debug("Line Number "+comment.getLine());
-	  		        		log.debug("Author "+comment.getAuthor());
-	  		        		log.debug("FileName "+comment.getKey().getParentKey().getFileName());
-	  		        		if( me.equals(comment.getAuthor()) && null != fileName && fileName.equals( comment.getKey().getParentKey().getFileName() )){
-	  		        			patchesDraftSet.add(comment);
-	  		        		}
-	  	        	}
-	  	        }
-	  	      }
-	      }
-	    }
-	    db.close();
-	    return patchesDraftSet;
+	}
+	
+
+	private List<DraftMessage> loadDraftMessage( String baseUrl, String patchUrl ) throws OrmException {
+		DraftUtil draftUtil = new DraftUtil();
+		List<DraftMessage> loadDraftMessage = draftUtil.loadDraftMessage(dbFactory, changeControlFactory, baseUrl, patchUrl);
+		return loadDraftMessage;
 	  }
 }

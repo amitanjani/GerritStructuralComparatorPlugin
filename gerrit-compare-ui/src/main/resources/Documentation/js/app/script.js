@@ -92,6 +92,8 @@ function init(anchor) {
 	$('#dialog_StatusOpen_window').hide();
 	$('#headerSection').hide();
 	$('#dataContainer').show();
+	$('#ModificationDetails').treetable('destroy');
+	$('#ModificationDetails').html('');
 }
 
 function loadGerritCommit() {

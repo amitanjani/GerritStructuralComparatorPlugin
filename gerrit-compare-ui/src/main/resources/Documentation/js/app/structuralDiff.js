@@ -3,14 +3,29 @@ structuralDiff = (function () {
 	"use strict";
 	
 	var urlModule = (function () {
-		var lastClickedUrl = "";
+		var clickedUrlQueue = [];
+		function addToUrlQueue(url) {
+			if (clickedUrlQueue.length >= 0 && clickedUrlQueue.length < 2) {
+				clickedUrlQueue.push(url);
+			} else if (clickedUrlQueue.length === 2) {
+				clickedUrlQueue.shift();
+				clickedUrlQueue.push(url);
+			}
+		}
 		return {
-			setLastClickedUrl: function (url) {
-				lastClickedUrl = url;
+			addURL : function (url) {
+				addToUrlQueue(url);
 			},
-			
-			getLastClickedUrl: function () {
-				return lastClickedUrl;
+			getLastClickedUrl : function () {
+				if (clickedUrlQueue.length > 0) {
+					return clickedUrlQueue[clickedUrlQueue.length - 1];
+				}
+			},
+			getclickedUrlQueue: function () {
+				return clickedUrlQueue;
+			},
+			resetClickedUrlQueue: function () {
+				clickedUrlQueue = [];
 			}
 		};
 	})();
@@ -250,7 +265,8 @@ structuralDiff = (function () {
 			$("#containerId").hide();
 			$("#wait").show();
 			
-			urlModule.setLastClickedUrl(url);
+			urlModule.resetClickedUrlQueue();
+			urlModule.addURL(url);
 
 			$.get("../gerritPlugin", { url: url  }).done(function (comparatorResult) {
 				if (comparatorResult.indexOf("JavaCode") === 0) {
@@ -313,7 +329,8 @@ structuralDiff = (function () {
 				$("#containerId").show();
 				$("#wait").hide();
 			}
-			urlModule.setLastClickedUrl(patchSetUrl);
+			
+			urlModule.addURL(patchSetUrl);
 		},
 	
 		getChangeIdDetails: function (key) {
@@ -361,8 +378,17 @@ structuralDiff = (function () {
 			var tableColumn = e.target.parentNode.parentNode;
 			var element = tableColumn.getElementsByTagName('textarea');
 			var draftMessage = element[0].value;
-			var lastClickedUrl = urlModule.getLastClickedUrl();
+			var baseUrl = null;
+			var patchUrl = urlModule.getLastClickedUrl();
+			var clickedUrlQueue = urlModule.getclickedUrlQueue();
 			var p;
+			
+			if (clickedUrlQueue.length == 2) {
+				baseUrl = urlModule.getclickedUrlQueue()[0];
+			} else if (clickedUrlQueue.length == 1) {
+				baseUrl = structuralDiff.createBaseURL(patchUrl);
+			}
+			
 			if( draftMessage != ''){
 				$(element[0]).hide();
 				p = tableColumn.getElementsByTagName('p');
@@ -376,7 +402,7 @@ structuralDiff = (function () {
 				$(buttons[1]).show();
 				$(buttons[2]).hide();
 				$(buttons[3]).hide();
-				$.get("../patchDetailService", { lineNumber:line, side:cellIndex, message:draftMessage, changeDetail:lastClickedUrl, flag:'save' }).done(function( result ) {
+				$.get("../patchDetailService", { lineNumber:line, side:cellIndex, message:draftMessage, baseUrl:baseUrl, patchUrl:patchUrl, flag:'save' }).done(function( result ) {
 					console.log('Draft Message saved successfully ')
 				});
 			}
@@ -388,15 +414,24 @@ structuralDiff = (function () {
 			var tableColumn = e.target.parentNode.parentNode;
 			var element = tableColumn.getElementsByTagName('textarea');
 			var draftMessage = element[0].value;
-			var lastClickedUrl = urlModule.getLastClickedUrl();
+			var baseUrl = null;
+			var patchUrl = urlModule.getLastClickedUrl();
+			var clickedUrlQueue = urlModule.getclickedUrlQueue();
+			
+			if (clickedUrlQueue.length == 2) {
+				baseUrl = urlModule.getclickedUrlQueue()[0];
+			} else if (clickedUrlQueue.length == 1) {
+				baseUrl = structuralDiff.createBaseURL(patchUrl);
+			}
+			
 			commentPanelCell.setEditableFlag("true");
 			document.getElementById("diffOutTable").deleteRow(rowIndex);
 			if( draftMessage != ''){
-				$.get("../patchDetailService", { lineNumber:line, side:cellIndex, message:draftMessage, changeDetail:lastClickedUrl, flag:'discard' }).done(function( result ) {
+				$.get("../patchDetailService", { lineNumber:line, side:cellIndex, message:draftMessage, baseUrl:baseUrl, patchUrl:patchUrl, flag:'discard' }).done(function( result ) {
 					console.log('Draft Message Deleted successfully ')
 				});
 			}
 		}
-	}
+	};
 	
 })();
