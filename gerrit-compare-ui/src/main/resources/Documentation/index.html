@@ -150,7 +150,7 @@
 			<div class="profileSection">
 				<nav role="navigation">
 					<ul class="main-nav">
-						<li><a href="#">All <i class="icon-chevron-down"></i></a>
+						<!-- <li><a href="#">All <i class="icon-chevron-down"></i></a>
 							<div class="dropdown">
 								<em class="subMenuTopArrow"></em>
 								<ul class="subMenu">
@@ -178,14 +178,14 @@
 									<li><a href="#">Uploading</a></li>
 									<li><a href="#">Access Controls</a></li>
 								</ul>
-							</div></li>
+							</div></li> -->
 					</ul>
 				</nav>
 				<p role="modified">
 					Uploaded : <span id="uploadedon">Apr 1, 2013 2:04 AM</span> Updated : <span id="updatedon">Apr
 						1, 2013 2:04 AM</span>
 				</p>
-				<div role="user-account">
+				<!-- <div role="user-account">
 					<nav role="navigation">
 						<ul class="user-nav">
 							<li><a href="#">Steffen Pingel <i
@@ -202,7 +202,7 @@
 							</li>
 						</ul>
 					</nav>
-				</div>
+				</div> -->
 			</div>
 			<!-- Short Profile Default Section Ends -->
 
@@ -274,7 +274,7 @@
 							</div>
 						</div>
 
-						<div class="reviewWrapper">
+						<!-- <div class="reviewWrapper">
 							<div role="task-status">
 								<img src="images/progressInReview.png" />
 							</div>
@@ -284,7 +284,7 @@
 									href="#">John Doe</a>, <a href="#">John Doe</a></span>
 								</ul>
 							</div>
-						</div>
+						</div> -->
 
 					</div>
 				</div>
@@ -322,21 +322,16 @@
 								<div class="overlay"></div>
 								<div class="patchesPanel">
 									<div class="patchesWrapper">
-										<span class="commentCounts commentCountsOn"> <a
+										<!-- <span class="commentCounts commentCountsOn"> <a
 											href="#">125</a>
-										</span>
+										</span> -->
 										<div class="dropdown dropdownDefaultValue">
 											<div role="selected">
 												<a href="#"><i class="icon-chevron-down"></i><span
 													class="label" id="checkCurrentPatch">Patch 1</span></a>
 											</div>
 											<div role="options">
-												<ul class="subMenu">
-													<li><a href="#" data-dd-id='patch1'>Patch 1</a></li>
-													<li><a href="#" data-dd-id='patch2'>Patch 2</a></li>
-													<li><a href="#" data-dd-id='patch3'>Patch 3</a></li>
-													<li><a href="#" data-dd-id='patch4'>Patch 4</a></li>
-												</ul>
+												<ul class="subMenu" id="submenu"></ul>
 											</div>
 										</div>
 
@@ -350,20 +345,7 @@
 									</div>
 								</div>
 
-								<div id="treeStruct" class="treeStructure">
-									<table id="patch1" cellpadding="0" cellspacing="0">
-										 <tbody id="patchset1"></tbody> 
-									</table>
-
-
-									<table id="patch2" cellpadding="0" cellspacing="0">
-										<tbody id="patchset2"></tbody>
-									</table>
-
-									<table id="patch3" cellpadding="0" cellspacing="0">
-										<tbody id="patchset3"></tbody>
-									</table>
-								</div>
+								<div id="treeStruct" class="treeStructure"></div>
 								<div id="changeTree"  class="treeClassStructure">
 									<table id="ModificationDetails" cellpadding="0" cellspacing="0"></table>
 								 </div>

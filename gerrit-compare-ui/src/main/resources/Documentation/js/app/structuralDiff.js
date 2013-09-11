@@ -1,7 +1,7 @@
 structuralDiff = (function () {
 	
 	"use strict";
-	
+	var patchLen = 0;
 	var urlModule = (function () {
 		var clickedUrlQueue = [];
 		function addToUrlQueue(url) {
@@ -201,6 +201,23 @@ structuralDiff = (function () {
 		 $("#changeIdList-template").tmpl(commitList).appendTo("#openStatus");
 	}
 	
+	function createSubmenu(patchSet) {
+		var subMenuList = '';
+	    $.each(patchSet, function(i, item) {
+	    	subMenuList += "<li><a href=\"#\" onclick=\"changePatch(this)\" data-dd-id='patch"+(i+1)+"'>Patch " + (i+1) +"</a></li>";
+	    });
+	    $("#submenu").html(subMenuList);
+	    createTable(patchSet);
+	}
+	
+	function createTable(patchSet){
+		var table = '';
+		$.each(patchSet, function(i, item) {
+			table += "<table id=\"patch" +(i+1)+ "\" cellpadding=\"0\" cellspacing=\"0\"></table>";
+	    });
+		$("#treeStruct").html(table);
+	}
+	
 	function createPatchFileNameList(parsedChangeJSON) {
 		var i,
 			j,
@@ -269,12 +286,15 @@ structuralDiff = (function () {
 			urlModule.addURL(url);
 
 			$.get("../gerritPlugin", { url: url  }).done(function (comparatorResult) {
+				var parsedJSON = JSON.parse(comparatorResult);
 				if (comparatorResult.indexOf("JavaCode") === 0) {
 					$('#ModificationDetails').treetable('destroy');
 					$('#ModificationDetails').html('');
 					baseVersion = "";
 					patchVersion = comparatorResult.replace('JavaCode', '');
 					structuralDiff.diffUsingJS(baseVersion, patchVersion, null);
+				} else if (parsedJSON.hasOwnProperty('baseFile')){
+					structuralDiff.diffUsingJS(parsedJSON.baseFile, parsedJSON.patchFile, null);
 				} else {
 					parseJSONResponse(comparatorResult);
 				}
@@ -335,6 +355,7 @@ structuralDiff = (function () {
 	
 		getChangeIdDetails: function (key) {
 			var parsedChangeJSON;
+			var id;
 			key = key.trim();
 			$("#containerId").hide();
 			$("#wait").show();
@@ -342,15 +363,14 @@ structuralDiff = (function () {
 			$.get("../gerritPlugin", { id:key }).done(function( jsonData ) {
 				parsedChangeJSON = JSON.parse( jsonData ).change;
 				populateProjectDetails( parsedChangeJSON );
+				createSubmenu(parsedChangeJSON.patchSets);
 				createPatchFileNameList(parsedChangeJSON);
-				if (parsedChangeJSON.patchSets.length == 1) {
-					$("#patch2").html('<table id="patch2" cellpadding="0" cellspacing="0"><tbody></tbody></table>');
-					$("#patch3").html('<table id="patch3" cellpadding="0" cellspacing="0"><tbody></tbody></table>');
-				} else if (parsedChangeJSON.patchSets.length == 2) {
-					$("#patch3").html('<table id="patch3" cellpadding="0" cellspacing="0"><tbody></tbody></table>');
+				for(var i=0; i < patchLen; i++){
+					id = "#patch"+(i+1);
+					$(id).treetable('destroy');
 				}
-				$('#patch1').treetable('destroy');
-				comparePatchIds('#patch1');
+				comparePatchIds("#patch1");
+				patchLen = parsedChangeJSON.patchSets.length;
 				$("#wait").hide();
 			});
 		},

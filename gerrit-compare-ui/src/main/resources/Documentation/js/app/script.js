@@ -102,13 +102,21 @@ function loadGerritCommit() {
 
 window.load = loadGerritCommit();
 
+
+function changePatch(pat){
+	patch.setPatchId($(pat).attr('data-dd-id'));
+	console.log(patch.getPatchId() + ' is fired from dropdown');
+	$('#checkCurrentPatch').text($(pat).text());
+	$('.dropdown').removeClass("dropdownActive")
+	comparePatchIds(patch.getPatchId());
+}
 // This action selects a patch from the drop down and sends 'this' data-dd-id to patch Object by using setPatchId
 // Also send final data-dd-id to the comparePatchIds as param.
-$('.subMenu a').click(function () {
+/*$('.subMenu a').click(function () {
 	patch.setPatchId($(this).attr('data-dd-id'));
 	console.log(patch.getPatchId() + ' is fired from dropdown');
 	comparePatchIds(patch.getPatchId());
-});
+});*/
 
 /* 	Comparision (DATA-DD-ID and TABLE ID)
  This Function compares both table Id and getPatchId Method(data-dd-id)
