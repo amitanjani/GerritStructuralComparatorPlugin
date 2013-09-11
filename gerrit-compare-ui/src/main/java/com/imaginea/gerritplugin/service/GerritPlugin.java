@@ -28,8 +28,10 @@ import com.imaginea.comparator.domain.DraftMessage;
 import com.imaginea.comparator.repo.ComparatorImpl;
 import com.imaginea.gerritplugin.utils.DraftUtil;
 import com.imaginea.gerritplugin.utils.FileDataRetrivalService;
+import com.imaginea.gerritplugin.utils.PatchDetail;
 import com.imaginea.gerritplugin.model.ChangeDetails;
 import com.imaginea.gerritplugin.model.ChangeID;
+import com.imaginea.gerritplugin.model.CompareFile;
 
 
 @Export("/gerritPlugin")
@@ -136,11 +138,20 @@ public class GerritPlugin extends HttpServlet {
 		try {
 			patchFile = FileDataRetrivalService.getFileDataStream(patchUrl);
 			baseFile = FileDataRetrivalService.getFileDataStream(baseUrl);
+			log.debug("Java File type::"+isJavaFile(baseUrl));
+			if( !isJavaFile(baseUrl) ){
+				log.debug("Comparing other than java file");
+				CompareFile compareFile = new CompareFile();
+				compareFile.setBaseFile(baseFile);
+				compareFile.setPatchFile(patchFile);
+				Gson gson = new Gson();
+				return gson.toJson(compareFile);
+			}
 		} catch ( MalformedURLException e ) {
 			log.error("Incorrect Url ", e);
 		} catch ( Exception e ) {
 			baseFile = "";
-			if( null != out){
+			if( null != out ){
 				out.write("JavaCode \n"+patchFile);
 			}
 			log.error( "Exception during file Retrieval ", e);
@@ -174,5 +185,17 @@ public class GerritPlugin extends HttpServlet {
 		
 		Gson gson = new Gson();
 		return gson.toJson( compareResult );
+	}
+	
+	private static boolean isJavaFile( String url ){
+		PatchDetail detail = new PatchDetail(url);
+		String[] fileArray =detail.getFileName().split("\\.");
+		if( fileArray!= null && fileArray.length == 2 ){
+			log.debug("Comparing file extension "+fileArray[1]);
+			if( fileArray[1].equalsIgnoreCase("java") ){
+				return true;
+			}
+		}
+		return false;
 	}
 }
