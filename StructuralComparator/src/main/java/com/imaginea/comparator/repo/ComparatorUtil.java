@@ -25,6 +25,7 @@ public class ComparatorUtil {
 	final static public short EXPECTEDDEFAULT = -1;
 	final static public short NOMODIFICATION = 0;
 	final static public short MODIFIEDDEFAULT = 10;
+	final static private String IMPORT = "import ";
 
 	public static Line processPackage(CompilationUnit compilationUnit) {
 		Line line = new Line();
@@ -46,7 +47,7 @@ public class ComparatorUtil {
 			String importName = importDeclaration.getName().toString();
 
 			ImportNode importNode = new ImportNode();
-			importNode.setValue(importName);
+			importNode.setValue(IMPORT + importName);
 			importNode.setLineNum(actualCompilationUnit.getLineNumber(importDeclaration.getStartPosition()));
 			importNode.setStatic(importDeclaration.isStatic());
 
@@ -68,7 +69,7 @@ public class ComparatorUtil {
 			String importName = importDeclaration.getName().toString();
 
 			ImportNode importNode = new ImportNode();
-			importNode.setValue(importName);
+			importNode.setValue(IMPORT + importName);
 			importNode.setLineNum(expectedCompilationUnit.getLineNumber(importDeclaration.getStartPosition()));
 			importNode.setStatic(importDeclaration.isStatic());
 
